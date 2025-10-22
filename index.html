@@ -2,104 +2,178 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Gerenciar Clientes</title>
+<title>Recibo - Gaia Phone</title>
 <style>
 body {
-font-family: Arial, sans-serif;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 margin: 20px;
+background-color: #f5f5f5;
 }
-h1 {
+
+.recibo-container {
+max-width: 800px;
+margin: 0 auto;
+background: #fff;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.header {
 text-align: center;
-}
-form {
+border-bottom: 2px solid #ddd;
+padding-bottom: 15px;
 margin-bottom: 20px;
 }
-input[type="text"], input[type="email"] {
-padding: 5px;
-margin-right: 10px;
+
+.header img {
+height: 80px;
+margin-bottom: 10px;
 }
-button {
-padding: 5px 10px;
+
+.header h1 {
+margin: 0;
+font-size: 28px;
+color: #333;
 }
-table {
+
+.header p {
+margin: 2px 0;
+color: #666;
+font-size: 14px;
+}
+
+.cliente-info, .detalhes {
+margin-bottom: 20px;
+}
+
+.cliente-info h2, .detalhes h2 {
+border-bottom: 1px solid #ddd;
+padding-bottom: 5px;
+color: #555;
+}
+
+.cliente-info p, .detalhes p {
+margin: 5px 0;
+color: #333;
+}
+
+.detalhes-table {
 width: 100%;
 border-collapse: collapse;
-margin-top: 10px;
 }
-table, th, td {
-border: 1px solid #333;
-}
-th, td {
-padding: 8px;
+
+.detalhes-table th, .detalhes-table td {
 text-align: left;
+padding: 10px;
+border-bottom: 1px solid #eee;
 }
-#printButton {
-margin-top: 20px;
+
+.detalhes-table th {
+background-color: #f0f0f0;
+color: #333;
 }
-/* Estilo para impressão */
+
+.print-button {
+text-align: center;
+margin-top: 30px;
+}
+
+.print-button button {
+padding: 12px 25px;
+font-size: 16px;
+border: none;
+border-radius: 6px;
+background-color: #0078D7;
+color: #fff;
+cursor: pointer;
+transition: background 0.3s;
+}
+
+.print-button button:hover {
+background-color: #005a9e;
+}
+
 @media print {
-#formCliente, #printButton {
+.print-button {
 display: none;
+}
+
+body {
+background-color: #fff;
 }
 }
 </style>
 </head>
 <body>
-<h1>Gerenciar Clientes</h1>
+<div class="recibo-container">
+<div class="header">
+<!-- Logo online -->
+<img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Logo_Gaia_Phone.png" alt="Logo Gaia Phone">
+<h1>Gaia Phone</h1>
+<p>Rua José Rocha, 189 A — 4430-123 V.N. Gaia</p>
+<p>Tel.: 222 441 808 / 931 965 105</p>
+</div>
 
-<form id="formCliente">
-<input type="text" id="nome" placeholder="Nome" required>
-<input type="email" id="email" placeholder="Email" required>
-<button type="submit">Adicionar Cliente</button>
-</form>
+<div class="cliente-info">
+<h2>Informações do Cliente</h2>
+<p><strong>Nome:</strong> <span id="cliente-nome">---</span></p>
+<p><strong>Telefone:</strong> <span id="cliente-telefone">---</span></p>
+<p><strong>Morada:</strong> <span id="cliente-morada">---</span></p>
+</div>
 
-<button id="printButton" onclick="window.print()">Imprimir Lista</button>
-
-<table id="clientesTable">
-<thead>
+<div class="detalhes">
+<h2>Detalhes do Equipamento</h2>
+<table class="detalhes-table">
 <tr>
-<th>ID</th>
-<th>Nome</th>
-<th>Email</th>
+<th>Marca</th>
+<td id="equipamento-marca">---</td>
 </tr>
-</thead>
-<tbody>
-<!-- Linhas de clientes serão inseridas aqui via JavaScript -->
-</tbody>
+<tr>
+<th>Modelo</th>
+<td id="equipamento-modelo">---</td>
+</tr>
+<tr>
+<th>Avaria</th>
+<td id="equipamento-avaria">---</td>
+</tr>
+<tr>
+<th>Data de Registo</th>
+<td id="registro-data">---</td>
+</tr>
 </table>
+</div>
+
+<div class="print-button">
+<button onclick="window.print()">Imprimir Recibo</button>
+</div>
+</div>
 
 <script>
-// Recupera clientes do localStorage ou cria lista vazia
-let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+// Exemplo de dados automáticos
+const cliente = {
+nome: "João Silva",
+telefone: "912345678",
+morada: "Rua Exemplo, 123"
+};
 
-const tbody = document.querySelector("#clientesTable tbody");
-const form = document.getElementById("formCliente");
+const equipamento = {
+marca: "Samsung",
+modelo: "Galaxy S21",
+avaria: "Ecrã partido",
+dataRegistro: new Date().toLocaleDateString()
+};
 
-// Função para atualizar a tabela
-function atualizarTabela() {
-tbody.innerHTML = "";
-clientes.forEach((cliente, index) => {
-const tr = document.createElement("tr");
-tr.innerHTML = `<td>${index + 1}</td><td>${cliente.nome}</td><td>${cliente.email}</td>`;
-tbody.appendChild(tr);
-});
-}
+// Preenche automaticamente o HTML
+document.getElementById("cliente-nome").textContent = cliente.nome;
+document.getElementById("cliente-telefone").textContent = cliente.telefone;
+document.getElementById("cliente-morada").textContent = cliente.morada;
 
-// Adiciona cliente ao enviar o formulário
-form.addEventListener("submit", function(e) {
-e.preventDefault();
-const nome = document.getElementById("nome").value.trim();
-const email = document.getElementById("email").value.trim();
-if(nome && email){
-clientes.push({nome, email});
-localStorage.setItem("clientes", JSON.stringify(clientes)); // Salva no navegador
-atualizarTabela();
-form.reset();
-}
-});
-
-// Inicializa a tabela ao abrir a página
-atualizarTabela();
+document.getElementById("equipamento-marca").textContent = equipamento.marca;
+document.getElementById("equipamento-modelo").textContent = equipamento.modelo;
+document.getElementById("equipamento-avaria").textContent = equipamento.avaria;
+document.getElementById("registro-data").textContent = equipamento.dataRegistro;
 </script>
 </body>
 </html>
+
