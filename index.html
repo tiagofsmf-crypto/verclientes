@@ -1,178 +1,209 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-PT">
 <head>
 <meta charset="UTF-8">
-<title>Recibo - Gaia Phone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gaia Phone - Gestão de Clientes</title>
 <style>
 body {
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-margin: 20px;
-background-color: #f5f5f5;
-}
-
-.recibo-container {
-max-width: 800px;
-margin: 0 auto;
-background: #fff;
-padding: 30px;
-border-radius: 12px;
-box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.header {
-text-align: center;
-border-bottom: 2px solid #ddd;
-padding-bottom: 15px;
-margin-bottom: 20px;
-}
-
-.header img {
-height: 80px;
-margin-bottom: 10px;
-}
-
-.header h1 {
+font-family: 'Arial', sans-serif;
+background: #f4f7fc;
 margin: 0;
-font-size: 28px;
-color: #333;
+padding: 0;
 }
-
-.header p {
-margin: 2px 0;
-color: #666;
+.container {
+width: 100%;
+max-width: 960px;
+margin: 0 auto;
+padding: 20px;
+background: #fff;
+border-radius: 10px;
+box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+header {
+text-align: center;
+margin-bottom: 30px;
+}
+header img {
+width: 150px;
+}
+header h1 {
+font-size: 24px;
+color: #333;
+margin-top: 10px;
+}
+.contact-info {
+text-align: center;
+font-size: 14px;
+color: #555;
+margin-top: 10px;
+}
+.contact-info a {
+color: #007bff;
+text-decoration: none;
+}
+.form-group {
+margin-bottom: 15px;
+}
+.form-group input, .form-group select, .form-group button {
+width: 100%;
+padding: 10px;
+margin: 5px 0;
+border: 1px solid #ddd;
+border-radius: 5px;
 font-size: 14px;
 }
-
-.cliente-info, .detalhes {
-margin-bottom: 20px;
-}
-
-.cliente-info h2, .detalhes h2 {
-border-bottom: 1px solid #ddd;
-padding-bottom: 5px;
-color: #555;
-}
-
-.cliente-info p, .detalhes p {
-margin: 5px 0;
-color: #333;
-}
-
-.detalhes-table {
-width: 100%;
-border-collapse: collapse;
-}
-
-.detalhes-table th, .detalhes-table td {
-text-align: left;
-padding: 10px;
-border-bottom: 1px solid #eee;
-}
-
-.detalhes-table th {
-background-color: #f0f0f0;
-color: #333;
-}
-
-.print-button {
-text-align: center;
-margin-top: 30px;
-}
-
-.print-button button {
-padding: 12px 25px;
-font-size: 16px;
-border: none;
-border-radius: 6px;
-background-color: #0078D7;
+.form-group button {
+background-color: #28a745;
 color: #fff;
 cursor: pointer;
-transition: background 0.3s;
 }
-
-.print-button button:hover {
-background-color: #005a9e;
+.form-group button:hover {
+background-color: #218838;
 }
-
+table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 20px;
+}
+table th, table td {
+padding: 12px;
+text-align: left;
+border: 1px solid #ddd;
+}
+table th {
+background-color: #f8f9fa;
+}
 @media print {
-.print-button {
+body {
+background: #fff;
+}
+.container {
+box-shadow: none;
+padding: 0;
+}
+header, .contact-info, .form-group, table {
 display: none;
 }
-
-body {
-background-color: #fff;
+table {
+width: 100%;
+border: none;
+}
+table th, table td {
+border: 1px solid #000;
+padding: 8px;
 }
 }
 </style>
 </head>
 <body>
-<div class="recibo-container">
-<div class="header">
-<!-- Logo online -->
-<img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Logo_Gaia_Phone.png" alt="Logo Gaia Phone">
-<h1>Gaia Phone</h1>
-<p>Rua José Rocha, 189 A — 4430-123 V.N. Gaia</p>
-<p>Tel.: 222 441 808 / 931 965 105</p>
+<div class="container">
+<header>
+<img src="https://via.placeholder.com/150x50.png?text=Gaia+Phone" alt="Logo Gaia Phone">
+<h1>Gestão de Clientes - Gaia Phone</h1>
+</header>
+
+<form id="clientForm">
+<div class="form-group">
+<input type="text" id="nome" placeholder="Nome" required>
+</div>
+<div class="form-group">
+<input type="text" id="morada" placeholder="Morada" required>
+</div>
+<div class="form-group">
+<input type="text" id="telefone" placeholder="Telefone" required>
+</div>
+<div class="form-group">
+<input type="text" id="marca" placeholder="Marca" required>
+</div>
+<div class="form-group">
+<input type="text" id="modelo" placeholder="Modelo" required>
+</div>
+<div class="form-group">
+<input type="text" id="avaria" placeholder="Avaria" required>
+</div>
+<div class="form-group">
+<input type="date" id="dataRegisto" required>
+</div>
+<div class="form-group">
+<button type="submit">Adicionar Cliente</button>
+</div>
+</form>
+
+<div class="form-group">
+<label for="selectClient">Selecionar Cliente:</label>
+<select id="selectClient">
+<option value="">-- Escolha um cliente --</option>
+</select>
+<button onclick="imprimirCliente()">Imprimir Cliente</button>
 </div>
 
-<div class="cliente-info">
-<h2>Informações do Cliente</h2>
-<p><strong>Nome:</strong> <span id="cliente-nome">---</span></p>
-<p><strong>Telefone:</strong> <span id="cliente-telefone">---</span></p>
-<p><strong>Morada:</strong> <span id="cliente-morada">---</span></p>
-</div>
+<div id="clientInfo"></div>
 
-<div class="detalhes">
-<h2>Detalhes do Equipamento</h2>
-<table class="detalhes-table">
-<tr>
-<th>Marca</th>
-<td id="equipamento-marca">---</td>
-</tr>
-<tr>
-<th>Modelo</th>
-<td id="equipamento-modelo">---</td>
-</tr>
-<tr>
-<th>Avaria</th>
-<td id="equipamento-avaria">---</td>
-</tr>
-<tr>
-<th>Data de Registo</th>
-<td id="registro-data">---</td>
-</tr>
-</table>
-</div>
-
-<div class="print-button">
-<button onclick="window.print()">Imprimir Recibo</button>
+<div class="contact-info">
+<p><strong>Morada:</strong> Rua José Rocha, 189 A, 4430-123 V.N. Gaia</p>
+<p><strong>Telefone:</strong> 222 441 808 / 931 965 105</p>
+<p><strong>Email:</strong> <a href="mailto:info@gaia-phone.pt">info@gaia-phone.pt</a></p>
 </div>
 </div>
 
 <script>
-// Exemplo de dados automáticos
+let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+
+function atualizarLista() {
+const select = document.getElementById('selectClient');
+select.innerHTML = '<option value="">-- Escolha um cliente --</option>';
+clientes.forEach((c, i) => {
+select.innerHTML += `<option value="${i}">${c.nome}</option>`;
+});
+}
+
+document.getElementById('clientForm').addEventListener('submit', function(e) {
+e.preventDefault();
 const cliente = {
-nome: "João Silva",
-telefone: "912345678",
-morada: "Rua Exemplo, 123"
+nome: document.getElementById('nome').value,
+morada: document.getElementById('morada').value,
+telefone: document.getElementById('telefone').value,
+marca: document.getElementById('marca').value,
+modelo: document.getElementById('modelo').value,
+avaria: document.getElementById('avaria').value,
+dataRegisto: document.getElementById('dataRegisto').value
 };
+clientes.push(cliente);
+localStorage.setItem('clientes', JSON.stringify(clientes));
+atualizarLista();
+this.reset();
+});
 
-const equipamento = {
-marca: "Samsung",
-modelo: "Galaxy S21",
-avaria: "Ecrã partido",
-dataRegistro: new Date().toLocaleDateString()
-};
+function imprimirCliente() {
+const index = document.getElementById('selectClient').value;
+if (index === '') {
+alert('Escolha um cliente');
+return;
+}
+const c = clientes[index];
+const conteudo = `
+<div style="text-align:center; margin-bottom:20px;">
+<img src="https://via.placeholder.com/150x50.png?text=Gaia+Phone" alt="Logo Gaia Phone" style="max-width:150px;">
+<h2>Ficha do Cliente</h2>
+</div>
+<table style="width:100%; border-collapse: collapse;">
+<tr><th>Nome</th><td>${c.nome}</td></tr>
+<tr><th>Morada</th><td>${c.morada}</td></tr>
+<tr><th>Telefone</th><td>${c.telefone}</td></tr>
+<tr><th>Marca</th><td>${c.marca}</td></tr>
+<tr><th>Modelo</th><td>${c.modelo}</td></tr>
+<tr><th>Avaria</th><td>${c.avaria}</td></tr>
+<tr><th>Data de Registo</th><td>${c.dataRegisto}</td></tr>
+</table>
+`;
+const printWindow = window.open('', '', 'width=800,height=600');
+printWindow.document.write(`<html><head><title>Imprimir Cliente</title></head><body>${conteudo}</body></html>`);
+printWindow.document.close();
+printWindow.print();
+}
 
-// Preenche automaticamente o HTML
-document.getElementById("cliente-nome").textContent = cliente.nome;
-document.getElementById("cliente-telefone").textContent = cliente.telefone;
-document.getElementById("cliente-morada").textContent = cliente.morada;
-
-document.getElementById("equipamento-marca").textContent = equipamento.marca;
-document.getElementById("equipamento-modelo").textContent = equipamento.modelo;
-document.getElementById("equipamento-avaria").textContent = equipamento.avaria;
-document.getElementById("registro-data").textContent = equipamento.dataRegistro;
+atualizarLista();
 </script>
 </body>
 </html>
