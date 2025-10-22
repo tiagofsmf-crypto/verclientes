@@ -1,210 +1,169 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gaia Phone - Gestão de Clientes</title>
+<title>Gestão de Clientes - Gaia Phone</title>
 <style>
 body {
-font-family: 'Arial', sans-serif;
-background: #f4f7fc;
-margin: 0;
-padding: 0;
+font-family: Arial, sans-serif;
+margin: 20px;
+background-color: #f4f4f4;
 }
-.container {
-width: 100%;
-max-width: 960px;
-margin: 0 auto;
-padding: 20px;
-background: #fff;
-border-radius: 10px;
-box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
-header {
+h1 {
 text-align: center;
-margin-bottom: 30px;
+color: #333;
 }
-header img {
+.logo {
+display: block;
+margin: 0 auto 20px auto;
 width: 150px;
 }
-header h1 {
-font-size: 24px;
-color: #333;
-margin-top: 10px;
+.form-container, .list-container, .print-container {
+background: white;
+padding: 20px;
+margin-bottom: 20px;
+border-radius: 8px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-.contact-info {
-text-align: center;
-font-size: 14px;
-color: #555;
-margin-top: 10px;
-}
-.contact-info a {
-color: #007bff;
-text-decoration: none;
-}
-.form-group {
-margin-bottom: 15px;
-}
-.form-group input, .form-group select, .form-group button {
-width: 100%;
+input, select, button {
+display: block;
+margin: 10px 0;
 padding: 10px;
-margin: 5px 0;
-border: 1px solid #ddd;
+width: 100%;
+font-size: 16px;
 border-radius: 5px;
-font-size: 14px;
+border: 1px solid #ccc;
 }
-.form-group button {
-background-color: #28a745;
-color: #fff;
+button {
+background-color: #007BFF;
+color: white;
+border: none;
 cursor: pointer;
 }
-.form-group button:hover {
-background-color: #218838;
+button:hover {
+background-color: #0056b3;
 }
 table {
 width: 100%;
 border-collapse: collapse;
-margin-top: 20px;
+margin-top: 10px;
 }
-table th, table td {
-padding: 12px;
-text-align: left;
+table, th, td {
 border: 1px solid #ddd;
 }
-table th {
-background-color: #f8f9fa;
+th, td {
+padding: 10px;
+text-align: left;
 }
 @media print {
-body {
-background: #fff;
+body * {
+visibility: hidden;
 }
-.container {
-box-shadow: none;
-padding: 0;
+.print-container, .print-container * {
+visibility: visible;
 }
-header, .contact-info, .form-group, table {
-display: none;
-}
-table {
+.print-container {
+position: absolute;
+left: 0;
+top: 0;
 width: 100%;
-border: none;
-}
-table th, table td {
-border: 1px solid #000;
-padding: 8px;
 }
 }
 </style>
 </head>
 <body>
-<div class="container">
-<header>
-<img src="https://via.placeholder.com/150x50.png?text=Gaia+Phone" alt="Logo Gaia Phone">
-<h1>Gestão de Clientes - Gaia Phone</h1>
-</header>
 
-<form id="clientForm">
-<div class="form-group">
-<input type="text" id="nome" placeholder="Nome" required>
-</div>
-<div class="form-group">
-<input type="text" id="morada" placeholder="Morada" required>
-</div>
-<div class="form-group">
-<input type="text" id="telefone" placeholder="Telefone" required>
-</div>
-<div class="form-group">
-<input type="text" id="marca" placeholder="Marca" required>
-</div>
-<div class="form-group">
-<input type="text" id="modelo" placeholder="Modelo" required>
-</div>
-<div class="form-group">
-<input type="text" id="avaria" placeholder="Avaria" required>
-</div>
-<div class="form-group">
-<input type="date" id="dataRegisto" required>
-</div>
-<div class="form-group">
-<button type="submit">Adicionar Cliente</button>
-</div>
-</form>
+<h1>Gaia Phone - Gestão de Clientes</h1>
+<img src="logo.png" alt="Logo Gaia Phone" class="logo">
 
-<div class="form-group">
-<label for="selectClient">Selecionar Cliente:</label>
-<select id="selectClient">
-<option value="">-- Escolha um cliente --</option>
+<div class="form-container">
+<h2>Adicionar Cliente</h2>
+<input type="text" id="nome" placeholder="Nome">
+<input type="text" id="telefone" placeholder="Telefone">
+<input type="text" id="morada" placeholder="Morada">
+<input type="text" id="marca" placeholder="Marca do Equipamento">
+<input type="text" id="modelo" placeholder="Modelo do Equipamento">
+<input type="text" id="avaria" placeholder="Avaria">
+<input type="email" id="email" placeholder="Email">
+<button onclick="adicionarCliente()">Adicionar Cliente</button>
+</div>
+
+<div class="list-container">
+<h2>Clientes</h2>
+<select id="clienteSelect" onchange="mostrarCliente()">
+<option value="">-- Selecionar Cliente --</option>
 </select>
-<button onclick="imprimirCliente()">Imprimir Cliente</button>
 </div>
 
-<div id="clientInfo"></div>
-
-<div class="contact-info">
+<div class="print-container" id="printContainer" style="display:none;">
+<h2>Ficha do Cliente</h2>
+<img src="logo.png" alt="Logo Gaia Phone" class="logo">
+<p><strong>Nome:</strong> <span id="pNome"></span></p>
+<p><strong>Telefone:</strong> <span id="pTelefone"></span></p>
 <p><strong>Morada:</strong> Rua José Rocha, 189 A, 4430-123 V.N. Gaia</p>
-<p><strong>Telefone:</strong> 222 441 808 / 931 965 105</p>
-<p><strong>Email:</strong> <a href="mailto:info@gaia-phone.pt">info@gaia-phone.pt</a></p>
-</div>
+<p><strong>Email:</strong> gaia@phone.com</p>
+<p><strong>Marca:</strong> <span id="pMarca"></span></p>
+<p><strong>Modelo:</strong> <span id="pModelo"></span></p>
+<p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
+<p><strong>Data de Registo:</strong> <span id="pData"></span></p>
+<button onclick="window.print()">Imprimir</button>
 </div>
 
 <script>
-let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+let clientes = [];
 
-function atualizarLista() {
-const select = document.getElementById('selectClient');
-select.innerHTML = '<option value="">-- Escolha um cliente --</option>';
-clientes.forEach((c, i) => {
-select.innerHTML += `<option value="${i}">${c.nome}</option>`;
-});
-}
+function adicionarCliente() {
+const nome = document.getElementById('nome').value;
+const telefone = document.getElementById('telefone').value;
+const morada = document.getElementById('morada').value;
+const marca = document.getElementById('marca').value;
+const modelo = document.getElementById('modelo').value;
+const avaria = document.getElementById('avaria').value;
+const email = document.getElementById('email').value;
+const data = new Date().toLocaleDateString();
 
-document.getElementById('clientForm').addEventListener('submit', function(e) {
-e.preventDefault();
-const cliente = {
-nome: document.getElementById('nome').value,
-morada: document.getElementById('morada').value,
-telefone: document.getElementById('telefone').value,
-marca: document.getElementById('marca').value,
-modelo: document.getElementById('modelo').value,
-avaria: document.getElementById('avaria').value,
-dataRegisto: document.getElementById('dataRegisto').value
-};
-clientes.push(cliente);
-localStorage.setItem('clientes', JSON.stringify(clientes));
-atualizarLista();
-this.reset();
-});
-
-function imprimirCliente() {
-const index = document.getElementById('selectClient').value;
-if (index === '') {
-alert('Escolha um cliente');
+if (!nome) {
+alert('Preencha o nome do cliente!');
 return;
 }
-const c = clientes[index];
-const conteudo = `
-<div style="text-align:center; margin-bottom:20px;">
-<img src="https://via.placeholder.com/150x50.png?text=Gaia+Phone" alt="Logo Gaia Phone" style="max-width:150px;">
-<h2>Ficha do Cliente</h2>
-</div>
-<table style="width:100%; border-collapse: collapse;">
-<tr><th>Nome</th><td>${c.nome}</td></tr>
-<tr><th>Morada</th><td>${c.morada}</td></tr>
-<tr><th>Telefone</th><td>${c.telefone}</td></tr>
-<tr><th>Marca</th><td>${c.marca}</td></tr>
-<tr><th>Modelo</th><td>${c.modelo}</td></tr>
-<tr><th>Avaria</th><td>${c.avaria}</td></tr>
-<tr><th>Data de Registo</th><td>${c.dataRegisto}</td></tr>
-</table>
-`;
-const printWindow = window.open('', '', 'width=800,height=600');
-printWindow.document.write(`<html><head><title>Imprimir Cliente</title></head><body>${conteudo}</body></html>`);
-printWindow.document.close();
-printWindow.print();
+
+const cliente = {nome, telefone, morada, marca, modelo, avaria, email, data};
+clientes.push(cliente);
+
+const select = document.getElementById('clienteSelect');
+const option = document.createElement('option');
+option.value = clientes.length - 1;
+option.text = nome;
+select.add(option);
+
+// Limpar campos
+document.getElementById('nome').value = '';
+document.getElementById('telefone').value = '';
+document.getElementById('morada').value = '';
+document.getElementById('marca').value = '';
+document.getElementById('modelo').value = '';
+document.getElementById('avaria').value = '';
+document.getElementById('email').value = '';
 }
 
-atualizarLista();
+function mostrarCliente() {
+const index = document.getElementById('clienteSelect').value;
+if (index === "") return;
+
+const cliente = clientes[index];
+
+document.getElementById('pNome').innerText = cliente.nome;
+document.getElementById('pTelefone').innerText = cliente.telefone;
+document.getElementById('pMarca').innerText = cliente.marca;
+document.getElementById('pModelo').innerText = cliente.modelo;
+document.getElementById('pAvaria').innerText = cliente.avaria;
+document.getElementById('pData').innerText = cliente.data;
+
+document.getElementById('printContainer').style.display = 'block';
+}
 </script>
+
 </body>
 </html>
 
