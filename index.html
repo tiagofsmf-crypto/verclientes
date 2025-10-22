@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Gerenciar Clientes</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+margin: 20px;
+}
+h1 {
+text-align: center;
+}
+form {
+margin-bottom: 20px;
+}
+input[type="text"], input[type="email"] {
+padding: 5px;
+margin-right: 10px;
+}
+button {
+padding: 5px 10px;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 10px;
+}
+table, th, td {
+border: 1px solid #333;
+}
+th, td {
+padding: 8px;
+text-align: left;
+}
+#printButton {
+margin-top: 20px;
+}
+/* Estilo para impressão */
+@media print {
+#formCliente, #printButton {
+display: none;
+}
+}
+</style>
+</head>
+<body>
+<h1>Gerenciar Clientes</h1>
+
+<form id="formCliente">
+<input type="text" id="nome" placeholder="Nome" required>
+<input type="email" id="email" placeholder="Email" required>
+<button type="submit">Adicionar Cliente</button>
+</form>
+
+<button id="printButton" onclick="window.print()">Imprimir Lista</button>
+
+<table id="clientesTable">
+<thead>
+<tr>
+<th>ID</th>
+<th>Nome</th>
+<th>Email</th>
+</tr>
+</thead>
+<tbody>
+<!-- Linhas de clientes serão inseridas aqui via JavaScript -->
+</tbody>
+</table>
+
+<script>
+// Recupera clientes do localStorage ou cria lista vazia
+let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+
+const tbody = document.querySelector("#clientesTable tbody");
+const form = document.getElementById("formCliente");
+
+// Função para atualizar a tabela
+function atualizarTabela() {
+tbody.innerHTML = "";
+clientes.forEach((cliente, index) => {
+const tr = document.createElement("tr");
+tr.innerHTML = `<td>${index + 1}</td><td>${cliente.nome}</td><td>${cliente.email}</td>`;
+tbody.appendChild(tr);
+});
+}
+
+// Adiciona cliente ao enviar o formulário
+form.addEventListener("submit", function(e) {
+e.preventDefault();
+const nome = document.getElementById("nome").value.trim();
+const email = document.getElementById("email").value.trim();
+if(nome && email){
+clientes.push({nome, email});
+localStorage.setItem("clientes", JSON.stringify(clientes)); // Salva no navegador
+atualizarTabela();
+form.reset();
+}
+});
+
+// Inicializa a tabela ao abrir a página
+atualizarTabela();
+</script>
+</body>
+</html>
