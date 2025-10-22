@@ -57,25 +57,23 @@ padding: 10px;
 text-align: left;
 }
 @media print {
-body * {
-visibility: hidden;
-}
-.print-container, .print-container * {
-visibility: visible;
-}
+button, #addClientForm { display: none; } /* esconde botões e formulários */
+body * { visibility: hidden; }
+.print-container, .print-container * { visibility: visible; }
 .print-container {
 position: absolute;
 left: 0;
 top: 0;
 width: 100%;
 }
+.logo { display: block; margin: 0 auto 20px auto; }
 }
 </style>
 </head>
 <body>
 
 <h1>Gaia Phone - Gestão de Clientes</h1>
-<img src="logo.png" alt="Logo Gaia Phone" class="logo">
+<img class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAIAAAAiOjnJ..." alt="Logo Gaia Phone">
 
 <div class="form-container">
 <h2>Adicionar Cliente</h2>
@@ -98,7 +96,7 @@ width: 100%;
 
 <div class="print-container" id="printContainer" style="display:none;">
 <h2>Ficha do Cliente</h2>
-<img src="logo.png" alt="Logo Gaia Phone" class="logo">
+<img class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAIAAAAiOjnJ..." alt="Logo Gaia Phone">
 <p><strong>Nome:</strong> <span id="pNome"></span></p>
 <p><strong>Telefone:</strong> <span id="pTelefone"></span></p>
 <p><strong>Morada:</strong> Rua José Rocha, 189 A, 4430-123 V.N. Gaia</p>
@@ -123,10 +121,7 @@ const avaria = document.getElementById('avaria').value;
 const email = document.getElementById('email').value;
 const data = new Date().toLocaleDateString();
 
-if (!nome) {
-alert('Preencha o nome do cliente!');
-return;
-}
+if (!nome) { alert('Preencha o nome do cliente!'); return; }
 
 const cliente = {nome, telefone, morada, marca, modelo, avaria, email, data};
 clientes.push(cliente);
@@ -152,7 +147,6 @@ const index = document.getElementById('clienteSelect').value;
 if (index === "") return;
 
 const cliente = clientes[index];
-
 document.getElementById('pNome').innerText = cliente.nome;
 document.getElementById('pTelefone').innerText = cliente.telefone;
 document.getElementById('pMarca').innerText = cliente.marca;
