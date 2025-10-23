@@ -69,6 +69,9 @@ left: 0;
 top: 0;
 width: 100%;
 }
+.print-container button {
+display: none;
+}
 }
 </style>
 </head>
@@ -79,8 +82,8 @@ width: 100%;
 
 <div class="form-container">
 <h2>Adicionar Cliente</h2>
-<input type="text" id="nome" placeholder="Nome">
-<input type="text" id="telefone" placeholder="Telefone">
+<input type="text" id="nome" placeholder="Nome" required>
+<input type="text" id="telefone" placeholder="Telefone" required>
 <input type="text" id="morada" placeholder="Morada">
 <input type="text" id="marca" placeholder="Marca do Equipamento">
 <input type="text" id="modelo" placeholder="Modelo do Equipamento">
@@ -90,7 +93,8 @@ width: 100%;
 </div>
 
 <div class="list-container">
-<h2>Selecionar Cliente pelo Telefone</h2>
+<h2>Clientes</h2>
+<input type="text" id="pesquisaTelefone" placeholder="Procurar pelo telefone" oninput="filtrarClientes()">
 <select id="clienteSelect" onchange="mostrarCliente()">
 <option value="">-- Selecionar Cliente --</option>
 </select>
@@ -111,82 +115,38 @@ width: 100%;
 </div>
 
 <script>
-const BIN_ID = "68f9f8dbae596e708f25f839";
-const API_KEY = "YOUR_JSONBIN_API_KEY"; // substitui com a tua API key JSONBin
 let clientes = [];
 
-// Carregar clientes do JSONBin
-async function carregarClientes() {
-try {
-const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-headers: { "X-Master-Key": API_KEY }
-});
-const data = await res.json();
-clientes = data.record || [];
+// Carregar clientes do LocalStorage ao iniciar
+window.onload = function() {
+if (localStorage.getItem('clientes')) {
+clientes = JSON.parse(localStorage.getItem('clientes'));
 atualizarSelect();
-} catch (err) {
-console.error("Erro ao carregar clientes:", err);
 }
 }
 
-// Atualizar o select com os clientes
-function atualizarSelect() {
-const select = document.getElementById('clienteSelect');
-select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((c, i) => {
-const option = document.createElement('option');
-option.value = i;
-option.text = c.telefone + " - " + c.nome;
-select.add(option);
-});
-}
-
-// Mostrar cliente selecionado
-function mostrarCliente() {
-const index = document.getElementById('clienteSelect').value;
-if (index === "") return;
-const c = clientes[index];
-document.getElementById('pNome').innerText = c.nome;
-document.getElementById('pTelefone').innerText = c.telefone;
-document.getElementById('pMorada').innerText = c.morada;
-document.getElementById('pEmail').innerText = c.email;
-document.getElementById('pMarca').innerText = c.marca;
-document.getElementById('pModelo').innerText = c.modelo;
-document.getElementById('pAvaria').innerText = c.avaria;
-document.getElementById('pData').innerText = c.data;
-document.getElementById('printContainer').style.display = 'block';
-}
-
-// Adicionar cliente e enviar para JSONBin
-async function adicionarCliente() {
-const nome = document.getElementById('nome').value;
-const telefone = document.getElementById('telefone').value;
-const morada = document.getElementById('morada').value;
-const marca = document.getElementById('marca').value;
-const modelo = document.getElementById('modelo').value;
-const avaria = document.getElementById('avaria').value;
-const email = document.getElementById('email').value;
+function adicionarCliente() {
+const nome = document.getElementById('nome').value.trim();
+const telefone = document.getElementById('telefone').value.trim();
+const morada = document.getElementById('morada').value.trim();
+const marca = document.getElementById('marca').value.trim();
+const modelo = document.getElementById('modelo').value.trim();
+const avaria = document.getElementById('avaria').value.trim();
+const email = document.getElementById('email').value.trim();
 const data = new Date().toLocaleDateString();
 
 if (!nome || !telefone) {
-alert("Nome e telefone são obrigatórios!");
+alert('Preencha o nome e telefone do cliente!');
 return;
 }
 
 const cliente = {nome, telefone, morada, marca, modelo, avaria, email, data};
 clientes.push(cliente);
+localStorage.setItem('clientes', JSON.stringify(clientes));
 
-// Atualizar JSONBin
-try {
-await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-method: 'PUT',
-headers: {
-"Content-Type": "application/json",
-"X-Master-Key": API_KEY
-},
-body: JSON.stringify(clientes)
-});
 atualizarSelect();
+
+// Limpar campos
 document.getElementById('nome').value = '';
 document.getElementById('telefone').value = '';
 document.getElementById('morada').value = '';
@@ -194,13 +154,43 @@ document.getElementById('marca').value = '';
 document.getElementById('modelo').value = '';
 document.getElementById('avaria').value = '';
 document.getElementById('email').value = '';
-} catch (err) {
-console.error("Erro ao atualizar JSONBin:", err);
-}
 }
 
-// Carregar ao iniciar
-carregarClientes();
+function atualizarSelect() {
+const select = document.getElementById('clienteSelect');
+const pesquisa = document.getElementById('pesquisaTelefone').value.trim();
+select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+clientes.forEach((c, index) => {
+if (c.telefone.includes(pesquisa)) {
+const option = document.createElement('option');
+option.value = index;
+option.text = `${c.nome} - ${c.telefone}`;
+select.add(option);
+}
+});
+}
+
+function mostrarCliente() {
+const index = document.getElementById('clienteSelect').value;
+if (index === "") return;
+
+const cliente = clientes[index];
+
+document.getElementById('pNome').innerText = cliente.nome;
+document.getElementById('pTelefone').innerText = cliente.telefone;
+document.getElementById('pMorada').innerText = cliente.morada;
+document.getElementById('pEmail').innerText = cliente.email;
+document.getElementById('pMarca').innerText = cliente.marca;
+document.getElementById('pModelo').innerText = cliente.modelo;
+document.getElementById('pAvaria').innerText = cliente.avaria;
+document.getElementById('pData').innerText = cliente.data;
+
+document.getElementById('printContainer').style.display = 'block';
+}
+
+function filtrarClientes() {
+atualizarSelect();
+}
 </script>
 
 </body>
