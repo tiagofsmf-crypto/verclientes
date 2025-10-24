@@ -44,20 +44,6 @@ cursor: pointer;
 button:hover {
 background-color: #0056b3;
 }
-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 10px;
-}
-table, th, td {
-border: 1px solid #ddd;
-}
-th, td {
-padding: 10px;
-text-align: left;
-}
-
-/* Print Container */
 .print-container {
 display: none;
 background: white;
@@ -84,14 +70,9 @@ font-size: 16px;
 .print-container hr {
 margin: 10px 0;
 }
-
 @media print {
-body * {
-visibility: hidden;
-}
-.print-container, .print-container * {
-visibility: visible;
-}
+body * { visibility: hidden; }
+.print-container, .print-container * { visibility: visible; }
 .print-container {
 position: absolute;
 left: 0;
@@ -102,9 +83,7 @@ padding: 20px;
 border: none;
 box-shadow: none;
 }
-.print-container button {
-display: none; /* botão de imprimir não aparece na folha */
-}
+.print-container button { display: none; }
 }
 </style>
 </head>
@@ -121,6 +100,8 @@ display: none; /* botão de imprimir não aparece na folha */
 <input type="text" id="marca" placeholder="Marca do Equipamento">
 <input type="text" id="modelo" placeholder="Modelo do Equipamento">
 <input type="text" id="avaria" placeholder="Avaria">
+<input type="text" id="masterKey" placeholder="Master Key">
+<input type="text" id="bin" placeholder="BIN">
 <button onclick="adicionarCliente()">Adicionar Cliente</button>
 </div>
 
@@ -145,12 +126,23 @@ display: none; /* botão de imprimir não aparece na folha */
 <p><strong>Marca:</strong> <span id="pMarca"></span></p>
 <p><strong>Modelo:</strong> <span id="pModelo"></span></p>
 <p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
+<p><strong>Master Key:</strong> <span id="pMasterKey"></span></p>
+<p><strong>BIN:</strong> <span id="pBin"></span></p>
 <p><strong>Data de Registo:</strong> <span id="pData"></span></p>
 <button onclick="window.print()">Imprimir</button>
 </div>
 
 <script>
 let clientes = [];
+
+// Carregar clientes do localStorage ao iniciar
+window.onload = function() {
+const dados = localStorage.getItem('clientes');
+if (dados) {
+clientes = JSON.parse(dados);
+atualizarSelect();
+}
+};
 
 // Adicionar Cliente
 function adicionarCliente() {
@@ -160,12 +152,17 @@ const imei = document.getElementById('imei').value;
 const marca = document.getElementById('marca').value;
 const modelo = document.getElementById('modelo').value;
 const avaria = document.getElementById('avaria').value;
+const masterKey = document.getElementById('masterKey').value;
+const bin = document.getElementById('bin').value;
 const data = new Date().toLocaleDateString();
 
 if (!nome) { alert('Preencha o nome do cliente!'); return; }
 
-const cliente = {nome, telefone, imei, marca, modelo, avaria, data};
+const cliente = {nome, telefone, imei, marca, modelo, avaria, masterKey, bin, data};
 clientes.push(cliente);
+
+// Salvar no localStorage
+localStorage.setItem('clientes', JSON.stringify(clientes));
 
 atualizarSelect();
 limparCampos();
@@ -185,7 +182,7 @@ select.add(option);
 
 // Limpar campos de input
 function limparCampos() {
-['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value='');
+['nome','telefone','imei','marca','modelo','avaria','masterKey','bin'].forEach(id => document.getElementById(id).value='');
 }
 
 // Mostrar cliente na ficha
@@ -200,6 +197,8 @@ document.getElementById('pIMEI').innerText = cliente.imei;
 document.getElementById('pMarca').innerText = cliente.marca;
 document.getElementById('pModelo').innerText = cliente.modelo;
 document.getElementById('pAvaria').innerText = cliente.avaria;
+document.getElementById('pMasterKey').innerText = cliente.masterKey;
+document.getElementById('pBin').innerText = cliente.bin;
 document.getElementById('pData').innerText = cliente.data;
 
 document.getElementById('printContainer').style.display = 'block';
