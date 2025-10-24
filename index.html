@@ -44,6 +44,20 @@ cursor: pointer;
 button:hover {
 background-color: #0056b3;
 }
+table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 10px;
+}
+table, th, td {
+border: 1px solid #ddd;
+}
+th, td {
+padding: 10px;
+text-align: left;
+}
+
+/* Print Container */
 .print-container {
 display: none;
 background: white;
@@ -71,7 +85,9 @@ font-size: 16px;
 margin: 10px 0;
 }
 @media print {
-body * { visibility: hidden; }
+body * {
+visibility: hidden;
+}
 .print-container, .print-container * {
 visibility: visible;
 }
@@ -85,7 +101,7 @@ padding: 20px;
 border: none;
 box-shadow: none;
 }
-.no-print {
+.print-container button {
 display: none !important;
 }
 }
@@ -97,23 +113,28 @@ display: none !important;
 <img src="logo.png" alt="Logo Gaia Phone" class="logo">
 
 <div class="form-container">
-<h2>Adicionar / Editar Cliente</h2>
+<h2>Adicionar Cliente</h2>
 <input type="text" id="nome" placeholder="Nome">
 <input type="text" id="telefone" placeholder="Telefone">
 <input type="text" id="imei" placeholder="IMEI">
-<input type="text" id="marca" placeholder="Marca">
-<input type="text" id="modelo" placeholder="Modelo">
+<input type="text" id="marca" placeholder="Marca do Equipamento">
+<input type="text" id="modelo" placeholder="Modelo do Equipamento">
 <input type="text" id="avaria" placeholder="Avaria">
-<button onclick="adicionarCliente()">Guardar Cliente</button>
-<button onclick="editarCliente()">Editar Cliente</button>
+<select id="estado">
+<option value="Não Reparado">Não Reparado</option>
+<option value="Reparado">Reparado</option>
+</select>
+<button onclick="adicionarCliente()">Adicionar Cliente</button>
 </div>
 
 <div class="list-container">
 <h2>Clientes</h2>
-<input type="text" id="pesquisa" placeholder="Procurar por Telefone ou IMEI" oninput="filtrarClientes()">
+<input type="text" id="pesquisa" placeholder="Procurar pelo Telefone ou IMEI" oninput="filtrarClientes()">
 <select id="clienteSelect" onchange="mostrarCliente()">
 <option value="">-- Selecionar Cliente --</option>
 </select>
+<button onclick="editarCliente()">Editar Cliente</button>
+<button onclick="guardarCliente()">Guardar Cliente</button>
 </div>
 
 <div class="print-container" id="printContainer">
@@ -129,39 +150,29 @@ display: none !important;
 <p><strong>Marca:</strong> <span id="pMarca"></span></p>
 <p><strong>Modelo:</strong> <span id="pModelo"></span></p>
 <p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
+<p><strong>Estado:</strong> <span id="pEstado"></span></p>
 <p><strong>Data de Registo:</strong> <span id="pData"></span></p>
-<p><strong>Estado:</strong>
-<select id="estado" class="no-print">
-<option value="Reparado">Reparado</option>
-<option value="Não Reparado">Não Reparado</option>
-</select>
-</p>
-<p id="estadoTexto" style="font-weight:bold;"></p>
-<button onclick="imprimirFicha()" class="no-print">Imprimir</button>
+<button onclick="window.print()">Imprimir</button>
 </div>
 
 <script>
-let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+let clienteAtual = null;
 
 // Adicionar Cliente
 function adicionarCliente() {
-const nome = nomeEl.value;
-const telefone = telefoneEl.value;
-const imei = imeiEl.value;
-const marca = marcaEl.value;
-const modelo = modeloEl.value;
-const avaria = avariaEl.value;
+const nome = document.getElementById('nome').value;
+const telefone = document.getElementById('telefone').value;
+const imei = document.getElementById('imei').value;
+const marca = document.getElementById('marca').value;
+const modelo = document.getElementById('modelo').value;
+const avaria = document.getElementById('avaria').value;
+const estado = document.getElementById('estado').value;
 const data = new Date().toLocaleDateString();
 
-if (!nome) return alert('Preencha o nome do cliente!');
+if (!nome) { alert('Preencha o nome do cliente!'); return; }
 
-const clienteExistente = clientes.find(c => c.telefone === telefone || c.imei === imei);
-if (clienteExistente) {
-alert("Cliente já existe! Use 'Editar Cliente' para alterar.");
-return;
-}
-
-const cliente = { nome, telefone, imei, marca, modelo, avaria, data };
+const cliente = {nome, telefone, imei, marca, modelo, avaria, estado, data};
 clientes.push(cliente);
 guardarLocal();
 atualizarSelect();
@@ -170,96 +181,97 @@ limparCampos();
 
 // Editar Cliente
 function editarCliente() {
-const index = clienteSelect.value;
-if (index === "") return alert('Selecione um cliente para editar.');
-
-clientes[index] = {
-nome: nomeEl.value,
-telefone: telefoneEl.value,
-imei: imeiEl.value,
-marca: marcaEl.value,
-modelo: modeloEl.value,
-avaria: avariaEl.value,
-data: new Date().toLocaleDateString()
-};
-
-guardarLocal();
-atualizarSelect();
-alert('Cliente atualizado com sucesso!');
+const index = document.getElementById('clienteSelect').value;
+if (index === "") { alert("Selecione um cliente para editar."); return; }
+clienteAtual = index;
+const c = clientes[index];
+document.getElementById('nome').value = c.nome;
+document.getElementById('telefone').value = c.telefone;
+document.getElementById('imei').value = c.imei;
+document.getElementById('marca').value = c.marca;
+document.getElementById('modelo').value = c.modelo;
+document.getElementById('avaria').value = c.avaria;
+document.getElementById('estado').value = c.estado;
+window.scrollTo(0, 0);
 }
 
-// Atualizar dropdown
+// Guardar Cliente (após edição)
+function guardarCliente() {
+if (clienteAtual === null) { alert("Nenhum cliente selecionado para guardar."); return; }
+clientes[clienteAtual] = {
+nome: document.getElementById('nome').value,
+telefone: document.getElementById('telefone').value,
+imei: document.getElementById('imei').value,
+marca: document.getElementById('marca').value,
+modelo: document.getElementById('modelo').value,
+avaria: document.getElementById('avaria').value,
+estado: document.getElementById('estado').value,
+data: clientes[clienteAtual].data
+};
+guardarLocal();
+atualizarSelect();
+limparCampos();
+alert("Cliente atualizado com sucesso!");
+clienteAtual = null;
+}
+
+// Guardar no localStorage
+function guardarLocal() {
+localStorage.setItem("clientes", JSON.stringify(clientes));
+}
+
+// Atualizar select
 function atualizarSelect() {
-clienteSelect.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((c, i) => {
-const opt = document.createElement('option');
-opt.value = i;
-opt.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
-clienteSelect.add(opt);
+const select = document.getElementById('clienteSelect');
+select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+clientes.forEach((c, index) => {
+const option = document.createElement('option');
+option.value = index;
+option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
+select.add(option);
 });
 }
 
-function limparCampos() {
-['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value = '');
-}
-
+// Mostrar cliente
 function mostrarCliente() {
-const index = clienteSelect.value;
+const index = document.getElementById('clienteSelect').value;
 if (index === "") return;
-const c = clientes[index];
+const cliente = clientes[index];
 
-nomeEl.value = c.nome;
-telefoneEl.value = c.telefone;
-imeiEl.value = c.imei;
-marcaEl.value = c.marca;
-modeloEl.value = c.modelo;
-avariaEl.value = c.avaria;
-
-document.getElementById('pNome').innerText = c.nome;
-document.getElementById('pTelefone').innerText = c.telefone;
-document.getElementById('pIMEI').innerText = c.imei;
-document.getElementById('pMarca').innerText = c.marca;
-document.getElementById('pModelo').innerText = c.modelo;
-document.getElementById('pAvaria').innerText = c.avaria;
-document.getElementById('pData').innerText = c.data;
-
+document.getElementById('pNome').innerText = cliente.nome;
+document.getElementById('pTelefone').innerText = cliente.telefone;
+document.getElementById('pIMEI').innerText = cliente.imei;
+document.getElementById('pMarca').innerText = cliente.marca;
+document.getElementById('pModelo').innerText = cliente.modelo;
+document.getElementById('pAvaria').innerText = cliente.avaria;
+document.getElementById('pEstado').innerText = cliente.estado;
+document.getElementById('pData').innerText = cliente.data;
 document.getElementById('printContainer').style.display = 'block';
 }
 
-function imprimirFicha() {
-const estado = document.getElementById('estado').value;
-document.getElementById('estadoTexto').innerText = `Estado: ${estado}`;
-window.print();
+// Limpar campos
+function limparCampos() {
+['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value='');
+document.getElementById('estado').value = 'Não Reparado';
 }
 
+// Filtrar clientes
 function filtrarClientes() {
-const filtro = pesquisaEl.value.toLowerCase();
-clienteSelect.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((c, i) => {
+const filtro = document.getElementById('pesquisa').value.toLowerCase();
+const select = document.getElementById('clienteSelect');
+select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+clientes.forEach((c, index) => {
 if (c.telefone.toLowerCase().includes(filtro) || c.imei.toLowerCase().includes(filtro)) {
-const opt = document.createElement('option');
-opt.value = i;
-opt.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
-clienteSelect.add(opt);
+const option = document.createElement('option');
+option.value = index;
+option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
+select.add(option);
 }
 });
 }
 
-function guardarLocal() {
-localStorage.setItem('clientes', JSON.stringify(clientes));
-}
-
-// Variáveis rápidas
-const nomeEl = document.getElementById('nome');
-const telefoneEl = document.getElementById('telefone');
-const imeiEl = document.getElementById('imei');
-const marcaEl = document.getElementById('marca');
-const modeloEl = document.getElementById('modelo');
-const avariaEl = document.getElementById('avaria');
-const clienteSelect = document.getElementById('clienteSelect');
-const pesquisaEl = document.getElementById('pesquisa');
-
-atualizarSelect();
+// Inicializar
+window.onload = atualizarSelect;
 </script>
 
 </body>
