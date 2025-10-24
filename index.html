@@ -87,22 +87,22 @@ const MASTER_KEY = "$2a$10$dG2ThExIwcpAMH8TWK7.nutw7YbLh999/nA8ZIHUebC2Bgxg.kxbC
 const BIN = "68f9f8dbae596e708f25f839";
 
 // Carregar clientes do localStorage
-window.onload = function() {
+document.addEventListener("DOMContentLoaded", function() {
 const dados = localStorage.getItem('clientes');
 if (dados) {
 clientes = JSON.parse(dados);
 atualizarSelect();
 }
-};
+});
 
 // Adicionar Cliente
 function adicionarCliente() {
-const nome = document.getElementById('nome').value;
-const telefone = document.getElementById('telefone').value;
-const imei = document.getElementById('imei').value;
-const marca = document.getElementById('marca').value;
-const modelo = document.getElementById('modelo').value;
-const avaria = document.getElementById('avaria').value;
+const nome = document.getElementById('nome').value.trim();
+const telefone = document.getElementById('telefone').value.trim();
+const imei = document.getElementById('imei').value.trim();
+const marca = document.getElementById('marca').value.trim();
+const modelo = document.getElementById('modelo').value.trim();
+const avaria = document.getElementById('avaria').value.trim();
 const data = new Date().toLocaleDateString();
 
 if (!nome) { alert('Preencha o nome do cliente!'); return; }
@@ -110,6 +110,7 @@ if (!nome) { alert('Preencha o nome do cliente!'); return; }
 const cliente = {nome, telefone, imei, marca, modelo, avaria, masterKey: MASTER_KEY, bin: BIN, data};
 clientes.push(cliente);
 localStorage.setItem('clientes', JSON.stringify(clientes));
+
 atualizarSelect();
 limparCampos();
 }
