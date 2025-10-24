@@ -5,84 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestão de Clientes - Gaia Phone</title>
 <style>
-body {
-font-family: Arial, sans-serif;
-margin: 20px;
-background-color: #f4f4f4;
-}
-h1 {
-text-align: center;
-color: #333;
-}
-.logo {
-display: block;
-margin: 0 auto 20px auto;
-width: 150px;
-}
+body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+h1 { text-align: center; color: #333; }
+.logo { display: block; margin: 0 auto 20px auto; width: 150px; }
 .form-container, .list-container {
-background: white;
-padding: 20px;
-margin-bottom: 20px;
-border-radius: 8px;
-box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+background: white; padding: 20px; margin-bottom: 20px;
+border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 input, select, button {
-display: block;
-margin: 10px 0;
-padding: 10px;
-width: 100%;
-font-size: 16px;
-border-radius: 5px;
-border: 1px solid #ccc;
+display: block; margin: 10px 0; padding: 10px;
+width: 100%; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;
 }
-button {
-background-color: #007BFF;
-color: white;
-border: none;
-cursor: pointer;
-}
-button:hover {
-background-color: #0056b3;
-}
+button { background-color: #007BFF; color: white; border: none; cursor: pointer; }
+button:hover { background-color: #0056b3; }
+.delete-btn { background-color: #dc3545; margin-top: 5px; }
+.delete-btn:hover { background-color: #a71d2a; }
 .print-container {
-display: none;
-background: white;
-padding: 20px;
-border: 2px solid #333;
-border-radius: 10px;
-max-width: 600px;
-margin: 20px auto;
-box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-text-align: center;
+display: none; background: white; padding: 20px; border: 2px solid #333;
+border-radius: 10px; max-width: 600px; margin: 20px auto;
+box-shadow: 0 4px 10px rgba(0,0,0,0.2); text-align: center;
 }
-.print-container h2 {
-margin-bottom: 5px;
-font-size: 24px;
-}
-.print-container .header-logo {
-width: 100px;
-margin-bottom: 10px;
-}
-.print-container p {
-margin: 5px 0;
-font-size: 16px;
-}
-.print-container hr {
-margin: 10px 0;
-}
+.print-container h2 { margin-bottom: 5px; font-size: 24px; }
+.print-container .header-logo { width: 100px; margin-bottom: 10px; }
+.print-container p { margin: 5px 0; font-size: 16px; }
+.print-container hr { margin: 10px 0; }
 @media print {
 body * { visibility: hidden; }
 .print-container, .print-container * { visibility: visible; }
-.print-container {
-position: absolute;
-left: 0;
-top: 0;
-width: 100%;
-margin: 0;
-padding: 20px;
-border: none;
-box-shadow: none;
-}
+.print-container { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; border: none; box-shadow: none; }
 .print-container button { display: none; }
 }
 </style>
@@ -109,6 +59,7 @@ box-shadow: none;
 <select id="clienteSelect" onchange="mostrarCliente()">
 <option value="">-- Selecionar Cliente --</option>
 </select>
+<button class="delete-btn" onclick="deletarCliente()">Deletar Cliente Selecionado</button>
 </div>
 
 <div class="print-container" id="printContainer">
@@ -124,14 +75,18 @@ box-shadow: none;
 <p><strong>Marca:</strong> <span id="pMarca"></span></p>
 <p><strong>Modelo:</strong> <span id="pModelo"></span></p>
 <p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
+<p><strong>Master Key:</strong> <span id="pMasterKey"></span></p>
+<p><strong>BIN:</strong> <span id="pBin"></span></p>
 <p><strong>Data de Registo:</strong> <span id="pData"></span></p>
 <button onclick="window.print()">Imprimir</button>
 </div>
 
 <script>
 let clientes = [];
+const MASTER_KEY = "$2a$10$dG2ThExIwcpAMH8TWK7.nutw7YbLh999/nA8ZIHUebC2Bgxg.kxbC";
+const BIN = "68f9f8dbae596e708f25f839";
 
-// Carregar clientes do localStorage ao iniciar
+// Carregar clientes do localStorage
 window.onload = function() {
 const dados = localStorage.getItem('clientes');
 if (dados) {
@@ -152,17 +107,14 @@ const data = new Date().toLocaleDateString();
 
 if (!nome) { alert('Preencha o nome do cliente!'); return; }
 
-const cliente = {nome, telefone, imei, marca, modelo, avaria, masterKey, bin, data};
+const cliente = {nome, telefone, imei, marca, modelo, avaria, masterKey: MASTER_KEY, bin: BIN, data};
 clientes.push(cliente);
-
-// Salvar no localStorage
 localStorage.setItem('clientes', JSON.stringify(clientes));
-
 atualizarSelect();
 limparCampos();
 }
 
-// Atualizar select de clientes
+// Atualizar select
 function atualizarSelect() {
 const select = document.getElementById('clienteSelect');
 select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
@@ -174,12 +126,12 @@ select.add(option);
 });
 }
 
-// Limpar campos de input
+// Limpar campos
 function limparCampos() {
-['nome','telefone','imei','marca','modelo','avaria','masterKey','bin'].forEach(id => document.getElementById(id).value='');
+['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value='');
 }
 
-// Mostrar cliente na ficha
+// Mostrar cliente
 function mostrarCliente() {
 const index = document.getElementById('clienteSelect').value;
 if (index === "") return;
@@ -191,12 +143,14 @@ document.getElementById('pIMEI').innerText = cliente.imei;
 document.getElementById('pMarca').innerText = cliente.marca;
 document.getElementById('pModelo').innerText = cliente.modelo;
 document.getElementById('pAvaria').innerText = cliente.avaria;
+document.getElementById('pMasterKey').innerText = cliente.masterKey;
+document.getElementById('pBin').innerText = cliente.bin;
 document.getElementById('pData').innerText = cliente.data;
 
 document.getElementById('printContainer').style.display = 'block';
 }
 
-// Filtrar clientes por telefone ou IMEI
+// Filtrar clientes
 function filtrarClientes() {
 const filtro = document.getElementById('pesquisa').value.toLowerCase();
 const select = document.getElementById('clienteSelect');
@@ -209,6 +163,19 @@ option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
 select.add(option);
 }
 });
+}
+
+// Deletar cliente selecionado
+function deletarCliente() {
+const select = document.getElementById('clienteSelect');
+const index = select.value;
+if (index === "") { alert("Selecione um cliente para deletar."); return; }
+if (!confirm("Tem certeza que deseja deletar este cliente?")) return;
+
+clientes.splice(index, 1);
+localStorage.setItem('clientes', JSON.stringify(clientes));
+atualizarSelect();
+document.getElementById('printContainer').style.display = 'none';
 }
 </script>
 
