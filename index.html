@@ -19,7 +19,7 @@ display: block;
 margin: 0 auto 20px auto;
 width: 150px;
 }
-.form-container, .list-container, .print-container {
+.form-container, .list-container {
 background: white;
 padding: 20px;
 margin-bottom: 20px;
@@ -44,6 +44,46 @@ cursor: pointer;
 button:hover {
 background-color: #0056b3;
 }
+table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 10px;
+}
+table, th, td {
+border: 1px solid #ddd;
+}
+th, td {
+padding: 10px;
+text-align: left;
+}
+
+/* Print Container */
+.print-container {
+display: none;
+background: white;
+padding: 20px;
+border: 2px solid #333;
+border-radius: 10px;
+max-width: 600px;
+margin: 20px auto;
+box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+text-align: center;
+}
+.print-container h2 {
+margin-bottom: 5px;
+font-size: 24px;
+}
+.print-container .header-logo {
+width: 100px;
+margin-bottom: 10px;
+}
+.print-container p {
+margin: 5px 0;
+font-size: 16px;
+}
+.print-container hr {
+margin: 10px 0;
+}
 @media print {
 body * {
 visibility: hidden;
@@ -56,6 +96,10 @@ position: absolute;
 left: 0;
 top: 0;
 width: 100%;
+margin: 0;
+padding: 20px;
+border: none;
+box-shadow: none;
 }
 }
 </style>
@@ -69,32 +113,34 @@ width: 100%;
 <h2>Adicionar Cliente</h2>
 <input type="text" id="nome" placeholder="Nome">
 <input type="text" id="telefone" placeholder="Telefone">
-<input type="text" id="morada" placeholder="Morada">
+<input type="text" id="imei" placeholder="IMEI">
 <input type="text" id="marca" placeholder="Marca do Equipamento">
 <input type="text" id="modelo" placeholder="Modelo do Equipamento">
 <input type="text" id="avaria" placeholder="Avaria">
-<input type="text" id="imei" placeholder="IMEI">
 <button onclick="adicionarCliente()">Adicionar Cliente</button>
 </div>
 
 <div class="list-container">
 <h2>Clientes</h2>
-<input type="text" id="pesquisa" placeholder="🔍 Procurar por telefone ou IMEI" oninput="filtrarClientes()">
+<input type="text" id="pesquisa" placeholder="Procurar pelo Telefone ou IMEI" oninput="filtrarClientes()">
 <select id="clienteSelect" onchange="mostrarCliente()">
 <option value="">-- Selecionar Cliente --</option>
 </select>
 </div>
 
-<div class="print-container" id="printContainer" style="display:none;">
-<h2>Ficha do Cliente</h2>
-<img src="logo.png" alt="Logo Gaia Phone" class="logo">
+<div class="print-container" id="printContainer">
+<img src="logo.png" alt="Logo Gaia Phone" class="header-logo">
+<h2>Reparações de Telemóveis</h2>
+<p>Rua José Rocha, 189 A, 4430-123 V.N. Gaia</p>
+<p>222 441 808 | 931 965 105</p>
+<p>gaiaphone@gmail.com</p>
+<hr>
 <p><strong>Nome:</strong> <span id="pNome"></span></p>
 <p><strong>Telefone:</strong> <span id="pTelefone"></span></p>
-<p><strong>Morada:</strong> <span id="pMorada"></span></p>
+<p><strong>IMEI:</strong> <span id="pIMEI"></span></p>
 <p><strong>Marca:</strong> <span id="pMarca"></span></p>
 <p><strong>Modelo:</strong> <span id="pModelo"></span></p>
 <p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
-<p><strong>IMEI:</strong> <span id="pIMEI"></span></p>
 <p><strong>Data de Registo:</strong> <span id="pData"></span></p>
 <button onclick="window.print()">Imprimir</button>
 </div>
@@ -102,74 +148,72 @@ width: 100%;
 <script>
 let clientes = [];
 
+// Adicionar Cliente
 function adicionarCliente() {
 const nome = document.getElementById('nome').value;
 const telefone = document.getElementById('telefone').value;
-const morada = document.getElementById('morada').value;
+const imei = document.getElementById('imei').value;
 const marca = document.getElementById('marca').value;
 const modelo = document.getElementById('modelo').value;
 const avaria = document.getElementById('avaria').value;
-const imei = document.getElementById('imei').value;
 const data = new Date().toLocaleDateString();
 
-if (!nome) {
-alert('Preencha o nome do cliente!');
-return;
-}
+if (!nome) { alert('Preencha o nome do cliente!'); return; }
 
-const cliente = { nome, telefone, morada, marca, modelo, avaria, imei, data };
+const cliente = {nome, telefone, imei, marca, modelo, avaria, data};
 clientes.push(cliente);
 
-atualizarLista();
+atualizarSelect();
 limparCampos();
 }
 
-function limparCampos() {
-document.getElementById('nome').value = '';
-document.getElementById('telefone').value = '';
-document.getElementById('morada').value = '';
-document.getElementById('marca').value = '';
-document.getElementById('modelo').value = '';
-document.getElementById('avaria').value = '';
-document.getElementById('imei').value = '';
-}
-
-function atualizarLista(filtro = "") {
+// Atualizar select de clientes
+function atualizarSelect() {
 const select = document.getElementById('clienteSelect');
 select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((cliente, index) => {
-if (
-cliente.telefone.includes(filtro) ||
-cliente.imei.includes(filtro) ||
-filtro === ""
-) {
+clientes.forEach((c, index) => {
 const option = document.createElement('option');
 option.value = index;
-option.text = `${cliente.nome} (${cliente.telefone})`;
+option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
 select.add(option);
-}
 });
 }
 
-function filtrarClientes() {
-const filtro = document.getElementById('pesquisa').value.trim();
-atualizarLista(filtro);
+// Limpar campos de input
+function limparCampos() {
+['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value='');
 }
 
+// Mostrar cliente na ficha
 function mostrarCliente() {
 const index = document.getElementById('clienteSelect').value;
 if (index === "") return;
-
 const cliente = clientes[index];
+
 document.getElementById('pNome').innerText = cliente.nome;
 document.getElementById('pTelefone').innerText = cliente.telefone;
-document.getElementById('pMorada').innerText = cliente.morada;
+document.getElementById('pIMEI').innerText = cliente.imei;
 document.getElementById('pMarca').innerText = cliente.marca;
 document.getElementById('pModelo').innerText = cliente.modelo;
 document.getElementById('pAvaria').innerText = cliente.avaria;
-document.getElementById('pIMEI').innerText = cliente.imei;
 document.getElementById('pData').innerText = cliente.data;
+
 document.getElementById('printContainer').style.display = 'block';
+}
+
+// Filtrar clientes por telefone ou IMEI
+function filtrarClientes() {
+const filtro = document.getElementById('pesquisa').value.toLowerCase();
+const select = document.getElementById('clienteSelect');
+select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+clientes.forEach((c, index) => {
+if (c.telefone.toLowerCase().includes(filtro) || c.imei.toLowerCase().includes(filtro)) {
+const option = document.createElement('option');
+option.value = index;
+option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
+select.add(option);
+}
+});
 }
 </script>
 
