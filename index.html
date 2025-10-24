@@ -44,18 +44,6 @@ cursor: pointer;
 button:hover {
 background-color: #0056b3;
 }
-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 10px;
-}
-table, th, td {
-border: 1px solid #ddd;
-}
-th, td {
-padding: 10px;
-text-align: left;
-}
 
 /* Print Container */
 .print-container {
@@ -84,6 +72,7 @@ font-size: 16px;
 .print-container hr {
 margin: 10px 0;
 }
+
 @media print {
 body * {
 visibility: hidden;
@@ -101,8 +90,9 @@ padding: 20px;
 border: none;
 box-shadow: none;
 }
+/* Ocultar botão de imprimir na impressão */
 .print-container button {
-display: none; /* botão não aparece na impressão */
+display: none;
 }
 }
 </style>
@@ -149,9 +139,15 @@ display: none; /* botão não aparece na impressão */
 </div>
 
 <script>
-let clientes = [];
+// Carregar clientes do localStorage ou criar array vazio
+let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
 
-// Adicionar Cliente
+// Atualiza o select ao carregar a página
+window.onload = function() {
+atualizarSelect();
+};
+
+// Adicionar cliente
 function adicionarCliente() {
 const nome = document.getElementById('nome').value;
 const telefone = document.getElementById('telefone').value;
@@ -165,6 +161,9 @@ if (!nome) { alert('Preencha o nome do cliente!'); return; }
 
 const cliente = {nome, telefone, imei, marca, modelo, avaria, data};
 clientes.push(cliente);
+
+// Salvar no localStorage
+localStorage.setItem('clientes', JSON.stringify(clientes));
 
 atualizarSelect();
 limparCampos();
