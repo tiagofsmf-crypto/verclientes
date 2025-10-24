@@ -73,12 +73,13 @@ width: 100%;
 <input type="text" id="marca" placeholder="Marca do Equipamento">
 <input type="text" id="modelo" placeholder="Modelo do Equipamento">
 <input type="text" id="avaria" placeholder="Avaria">
-<input type="text" id="imei" placeholder="IMEI (opcional)">
+<input type="text" id="imei" placeholder="IMEI">
 <button onclick="adicionarCliente()">Adicionar Cliente</button>
 </div>
 
 <div class="list-container">
 <h2>Clientes</h2>
+<input type="text" id="pesquisa" placeholder="🔍 Procurar por telefone ou IMEI" oninput="filtrarClientes()">
 <select id="clienteSelect" onchange="mostrarCliente()">
 <option value="">-- Selecionar Cliente --</option>
 </select>
@@ -119,12 +120,11 @@ return;
 const cliente = { nome, telefone, morada, marca, modelo, avaria, imei, data };
 clientes.push(cliente);
 
-const select = document.getElementById('clienteSelect');
-const option = document.createElement('option');
-option.value = clientes.length - 1;
-option.text = nome;
-select.add(option);
+atualizarLista();
+limparCampos();
+}
 
+function limparCampos() {
 document.getElementById('nome').value = '';
 document.getElementById('telefone').value = '';
 document.getElementById('morada').value = '';
@@ -132,6 +132,28 @@ document.getElementById('marca').value = '';
 document.getElementById('modelo').value = '';
 document.getElementById('avaria').value = '';
 document.getElementById('imei').value = '';
+}
+
+function atualizarLista(filtro = "") {
+const select = document.getElementById('clienteSelect');
+select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+clientes.forEach((cliente, index) => {
+if (
+cliente.telefone.includes(filtro) ||
+cliente.imei.includes(filtro) ||
+filtro === ""
+) {
+const option = document.createElement('option');
+option.value = index;
+option.text = `${cliente.nome} (${cliente.telefone})`;
+select.add(option);
+}
+});
+}
+
+function filtrarClientes() {
+const filtro = document.getElementById('pesquisa').value.trim();
+atualizarLista(filtro);
 }
 
 function mostrarCliente() {
