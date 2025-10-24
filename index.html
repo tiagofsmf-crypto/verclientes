@@ -44,8 +44,6 @@ cursor: pointer;
 button:hover {
 background-color: #0056b3;
 }
-
-/* Print Container */
 .print-container {
 display: none;
 background: white;
@@ -72,11 +70,8 @@ font-size: 16px;
 .print-container hr {
 margin: 10px 0;
 }
-
 @media print {
-body * {
-visibility: hidden;
-}
+body * { visibility: hidden; }
 .print-container, .print-container * {
 visibility: visible;
 }
@@ -90,9 +85,8 @@ padding: 20px;
 border: none;
 box-shadow: none;
 }
-/* Ocultar botão de imprimir na impressão */
-.print-container button {
-display: none;
+.no-print {
+display: none !important;
 }
 }
 </style>
@@ -103,19 +97,20 @@ display: none;
 <img src="logo.png" alt="Logo Gaia Phone" class="logo">
 
 <div class="form-container">
-<h2>Adicionar Cliente</h2>
+<h2>Adicionar / Editar Cliente</h2>
 <input type="text" id="nome" placeholder="Nome">
 <input type="text" id="telefone" placeholder="Telefone">
 <input type="text" id="imei" placeholder="IMEI">
-<input type="text" id="marca" placeholder="Marca do Equipamento">
-<input type="text" id="modelo" placeholder="Modelo do Equipamento">
+<input type="text" id="marca" placeholder="Marca">
+<input type="text" id="modelo" placeholder="Modelo">
 <input type="text" id="avaria" placeholder="Avaria">
-<button onclick="adicionarCliente()">Adicionar Cliente</button>
+<button onclick="adicionarCliente()">Guardar Cliente</button>
+<button onclick="editarCliente()">Editar Cliente</button>
 </div>
 
 <div class="list-container">
 <h2>Clientes</h2>
-<input type="text" id="pesquisa" placeholder="Procurar pelo Telefone ou IMEI" oninput="filtrarClientes()">
+<input type="text" id="pesquisa" placeholder="Procurar por Telefone ou IMEI" oninput="filtrarClientes()">
 <select id="clienteSelect" onchange="mostrarCliente()">
 <option value="">-- Selecionar Cliente --</option>
 </select>
@@ -135,88 +130,136 @@ display: none;
 <p><strong>Modelo:</strong> <span id="pModelo"></span></p>
 <p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
 <p><strong>Data de Registo:</strong> <span id="pData"></span></p>
-<button onclick="window.print()">Imprimir</button>
+<p><strong>Estado:</strong>
+<select id="estado" class="no-print">
+<option value="Reparado">Reparado</option>
+<option value="Não Reparado">Não Reparado</option>
+</select>
+</p>
+<p id="estadoTexto" style="font-weight:bold;"></p>
+<button onclick="imprimirFicha()" class="no-print">Imprimir</button>
 </div>
 
 <script>
-// Carregar clientes do localStorage ou criar array vazio
 let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
 
-// Atualiza o select ao carregar a página
-window.onload = function() {
-atualizarSelect();
-};
-
-// Adicionar cliente
+// Adicionar Cliente
 function adicionarCliente() {
-const nome = document.getElementById('nome').value;
-const telefone = document.getElementById('telefone').value;
-const imei = document.getElementById('imei').value;
-const marca = document.getElementById('marca').value;
-const modelo = document.getElementById('modelo').value;
-const avaria = document.getElementById('avaria').value;
+const nome = nomeEl.value;
+const telefone = telefoneEl.value;
+const imei = imeiEl.value;
+const marca = marcaEl.value;
+const modelo = modeloEl.value;
+const avaria = avariaEl.value;
 const data = new Date().toLocaleDateString();
 
-if (!nome) { alert('Preencha o nome do cliente!'); return; }
+if (!nome) return alert('Preencha o nome do cliente!');
 
-const cliente = {nome, telefone, imei, marca, modelo, avaria, data};
+const clienteExistente = clientes.find(c => c.telefone === telefone || c.imei === imei);
+if (clienteExistente) {
+alert("Cliente já existe! Use 'Editar Cliente' para alterar.");
+return;
+}
+
+const cliente = { nome, telefone, imei, marca, modelo, avaria, data };
 clientes.push(cliente);
-
-// Salvar no localStorage
-localStorage.setItem('clientes', JSON.stringify(clientes));
-
+guardarLocal();
 atualizarSelect();
 limparCampos();
 }
 
-// Atualizar select de clientes
+// Editar Cliente
+function editarCliente() {
+const index = clienteSelect.value;
+if (index === "") return alert('Selecione um cliente para editar.');
+
+clientes[index] = {
+nome: nomeEl.value,
+telefone: telefoneEl.value,
+imei: imeiEl.value,
+marca: marcaEl.value,
+modelo: modeloEl.value,
+avaria: avariaEl.value,
+data: new Date().toLocaleDateString()
+};
+
+guardarLocal();
+atualizarSelect();
+alert('Cliente atualizado com sucesso!');
+}
+
+// Atualizar dropdown
 function atualizarSelect() {
-const select = document.getElementById('clienteSelect');
-select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((c, index) => {
-const option = document.createElement('option');
-option.value = index;
-option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
-select.add(option);
+clienteSelect.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+clientes.forEach((c, i) => {
+const opt = document.createElement('option');
+opt.value = i;
+opt.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
+clienteSelect.add(opt);
 });
 }
 
-// Limpar campos de input
 function limparCampos() {
-['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value='');
+['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value = '');
 }
 
-// Mostrar cliente na ficha
 function mostrarCliente() {
-const index = document.getElementById('clienteSelect').value;
+const index = clienteSelect.value;
 if (index === "") return;
-const cliente = clientes[index];
+const c = clientes[index];
 
-document.getElementById('pNome').innerText = cliente.nome;
-document.getElementById('pTelefone').innerText = cliente.telefone;
-document.getElementById('pIMEI').innerText = cliente.imei;
-document.getElementById('pMarca').innerText = cliente.marca;
-document.getElementById('pModelo').innerText = cliente.modelo;
-document.getElementById('pAvaria').innerText = cliente.avaria;
-document.getElementById('pData').innerText = cliente.data;
+nomeEl.value = c.nome;
+telefoneEl.value = c.telefone;
+imeiEl.value = c.imei;
+marcaEl.value = c.marca;
+modeloEl.value = c.modelo;
+avariaEl.value = c.avaria;
+
+document.getElementById('pNome').innerText = c.nome;
+document.getElementById('pTelefone').innerText = c.telefone;
+document.getElementById('pIMEI').innerText = c.imei;
+document.getElementById('pMarca').innerText = c.marca;
+document.getElementById('pModelo').innerText = c.modelo;
+document.getElementById('pAvaria').innerText = c.avaria;
+document.getElementById('pData').innerText = c.data;
 
 document.getElementById('printContainer').style.display = 'block';
 }
 
-// Filtrar clientes por telefone ou IMEI
+function imprimirFicha() {
+const estado = document.getElementById('estado').value;
+document.getElementById('estadoTexto').innerText = `Estado: ${estado}`;
+window.print();
+}
+
 function filtrarClientes() {
-const filtro = document.getElementById('pesquisa').value.toLowerCase();
-const select = document.getElementById('clienteSelect');
-select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((c, index) => {
+const filtro = pesquisaEl.value.toLowerCase();
+clienteSelect.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+clientes.forEach((c, i) => {
 if (c.telefone.toLowerCase().includes(filtro) || c.imei.toLowerCase().includes(filtro)) {
-const option = document.createElement('option');
-option.value = index;
-option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
-select.add(option);
+const opt = document.createElement('option');
+opt.value = i;
+opt.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
+clienteSelect.add(opt);
 }
 });
 }
+
+function guardarLocal() {
+localStorage.setItem('clientes', JSON.stringify(clientes));
+}
+
+// Variáveis rápidas
+const nomeEl = document.getElementById('nome');
+const telefoneEl = document.getElementById('telefone');
+const imeiEl = document.getElementById('imei');
+const marcaEl = document.getElementById('marca');
+const modeloEl = document.getElementById('modelo');
+const avariaEl = document.getElementById('avaria');
+const clienteSelect = document.getElementById('clienteSelect');
+const pesquisaEl = document.getElementById('pesquisa');
+
+atualizarSelect();
 </script>
 
 </body>
