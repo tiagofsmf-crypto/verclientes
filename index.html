@@ -84,6 +84,7 @@ font-size: 16px;
 .print-container hr {
 margin: 10px 0;
 }
+
 @media print {
 body * {
 visibility: hidden;
@@ -100,6 +101,9 @@ margin: 0;
 padding: 20px;
 border: none;
 box-shadow: none;
+}
+.print-container button {
+display: none; /* botão de imprimir não aparece na folha */
 }
 }
 </style>
