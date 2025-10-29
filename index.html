@@ -5,33 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gaia Phone - Gestão de Clientes</title>
 <style>
-/* Login */
+/* LOGIN */
 #loginContainer {
-display: flex;
-justify-content: center;
-align-items: center;
+position: fixed;
+top: 0;
+left: 0;
+width: 100vw;
 height: 100vh;
 background-color: #1E3A5F; /* Azul clássico */
+display: flex;
 flex-direction: column;
+justify-content: center;
+align-items: center;
+color: white;
 }
-#loginContainer input, #loginContainer button {
-padding: 10px;
-margin: 5px 0;
+#loginContainer img {
+width: 150px;
+margin-bottom: 25px;
+}
+#loginContainer input {
+padding: 12px;
+margin: 8px 0;
 width: 250px;
 font-size: 16px;
 border-radius: 5px;
 border: none;
+text-align: center;
 }
 #loginContainer button {
-background-color: #0B1D3A; /* Azul escuro marinho */
+background-color: #0B1D3A; /* Azul marinho */
 color: white;
+border: none;
+padding: 10px 20px;
+border-radius: 5px;
 cursor: pointer;
+font-size: 16px;
+transition: 0.3s;
 }
 #loginContainer button:hover {
 background-color: #06122A;
 }
 
-/* Body */
+/* SITE PRINCIPAL */
 body {
 font-family: Arial, sans-serif;
 margin: 20px;
@@ -76,7 +91,7 @@ button:hover {
 background-color: #06122A;
 }
 
-/* Print Container */
+/* FICHA IMPRESSÃO */
 .print-container {
 display: none;
 background: white;
@@ -113,7 +128,7 @@ body * { visibility: hidden; }
 <!-- LOGIN -->
 <div id="loginContainer">
 <img src="logo.png" alt="Logo Gaia Phone" class="logo">
-<input type="password" id="senha" placeholder="Insira a senha">
+<input type="password" id="senha" placeholder="Insira a senha" onkeypress="if(event.key === 'Enter') verificarLogin()">
 <button onclick="verificarLogin()">Entrar</button>
 </div>
 
@@ -160,11 +175,12 @@ body * { visibility: hidden; }
 <p><strong>Data de Registo:</strong> <span id="pData"></span></p>
 <p><strong>Status:</strong> <span id="pStatus"></span></p>
 </div>
+</div>
 
 <script>
-// LOGIN
+/* LOGIN */
 function verificarLogin() {
-const senha = document.getElementById('senha').value;
+const senha = document.getElementById('senha').value.trim();
 if(senha === 'roque') {
 document.getElementById('loginContainer').style.display = 'none';
 document.getElementById('mainContainer').style.display = 'block';
@@ -173,7 +189,7 @@ alert('Senha incorreta!');
 }
 }
 
-// CLIENTES
+/* CLIENTES */
 let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
 
 function salvarLocalStorage() {
@@ -181,12 +197,12 @@ localStorage.setItem('clientes', JSON.stringify(clientes));
 }
 
 function adicionarCliente() {
-const nome = document.getElementById('nome').value;
-const telefone = document.getElementById('telefone').value;
-const imei = document.getElementById('imei').value;
-const marca = document.getElementById('marca').value;
-const modelo = document.getElementById('modelo').value;
-const avaria = document.getElementById('avaria').value;
+const nome = document.getElementById('nome').value.trim();
+const telefone = document.getElementById('telefone').value.trim();
+const imei = document.getElementById('imei').value.trim();
+const marca = document.getElementById('marca').value.trim();
+const modelo = document.getElementById('modelo').value.trim();
+const avaria = document.getElementById('avaria').value.trim();
 const data = new Date().toLocaleDateString();
 
 if(!nome) { alert('Preencha o nome!'); return; }
