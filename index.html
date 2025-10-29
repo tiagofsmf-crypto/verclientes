@@ -66,6 +66,13 @@ gap: 10px;
 justify-content: center;
 margin-top: 15px;
 }
+.edit-form {
+display: none;
+margin-top: 15px;
+background: #f0f2f5;
+padding: 15px;
+border-radius: 8px;
+}
 .print-container {
 display: none;
 background: white;
@@ -134,7 +141,25 @@ box-shadow: none;
 <option value="">-- Selecionar Cliente --</option>
 </select>
 <div class="btn-group">
-<button onclick="editarCliente()">Editar Cliente</button>
+<button onclick="abrirEdicao()">Editar Cliente</button>
+<button onclick="apagarCliente()">Apagar Cliente</button>
+</div>
+
+<!-- Formulário de Edição -->
+<div class="edit-form" id="editForm">
+<h3>Editar Cliente</h3>
+<div class="form-row">
+<input type="text" id="editNome" placeholder="Nome">
+<input type="text" id="editTelefone" placeholder="Telefone">
+<input type="text" id="editIMEI" placeholder="IMEI">
+<input type="text" id="editMarca" placeholder="Marca">
+<input type="text" id="editModelo" placeholder="Modelo">
+<input type="text" id="editAvaria" placeholder="Avaria">
+</div>
+<div class="btn-group">
+<button onclick="guardarEdicao()">Guardar Alterações</button>
+<button onclick="fecharEdicao()">Cancelar</button>
+</div>
 </div>
 </main>
 
@@ -161,6 +186,7 @@ box-shadow: none;
 
 <script>
 let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+let clienteEditando = null;
 
 // Adicionar Cliente
 function adicionarCliente() {
@@ -187,7 +213,6 @@ guardarClientes();
 // Guardar no Local Storage
 function guardarClientes() {
 localStorage.setItem("clientes", JSON.stringify(clientes));
-alert("Clientes guardados com sucesso!");
 }
 
 // Atualizar lista
@@ -202,22 +227,55 @@ select.add(option);
 });
 }
 
-// Editar cliente
-function editarCliente() {
+// Abrir formulário de edição
+function abrirEdicao() {
 const index = document.getElementById('clienteSelect').value;
 if (index === "") return alert("Selecione um cliente para editar!");
-const cliente = clientes[index];
+clienteEditando = index;
+const c = clientes[index];
 
-cliente.nome = prompt("Editar nome:", cliente.nome) || cliente.nome;
-cliente.telefone = prompt("Editar telefone:", cliente.telefone) || cliente.telefone;
-cliente.imei = prompt("Editar IMEI:", cliente.imei) || cliente.imei;
-cliente.marca = prompt("Editar marca:", cliente.marca) || cliente.marca;
-cliente.modelo = prompt("Editar modelo:", cliente.modelo) || cliente.modelo;
-cliente.avaria = prompt("Editar avaria:", cliente.avaria) || cliente.avaria;
+document.getElementById('editNome').value = c.nome;
+document.getElementById('editTelefone').value = c.telefone;
+document.getElementById('editIMEI').value = c.imei;
+document.getElementById('editMarca').value = c.marca;
+document.getElementById('editModelo').value = c.modelo;
+document.getElementById('editAvaria').value = c.avaria;
+
+document.getElementById('editForm').style.display = "block";
+}
+
+function fecharEdicao() {
+document.getElementById('editForm').style.display = "none";
+clienteEditando = null;
+}
+
+function guardarEdicao() {
+if (clienteEditando === null) return;
+const c = clientes[clienteEditando];
+
+c.nome = document.getElementById('editNome').value.trim();
+c.telefone = document.getElementById('editTelefone').value.trim();
+c.imei = document.getElementById('editIMEI').value.trim();
+c.marca = document.getElementById('editMarca').value.trim();
+c.modelo = document.getElementById('editModelo').value.trim();
+c.avaria = document.getElementById('editAvaria').value.trim();
 
 guardarClientes();
 atualizarSelect();
-alert("Cliente atualizado!");
+fecharEdicao();
+alert("Cliente atualizado com sucesso!");
+}
+
+// Apagar cliente
+function apagarCliente() {
+const index = document.getElementById('clienteSelect').value;
+if (index === "") return alert("Selecione um cliente para apagar!");
+if (!confirm("Tem a certeza que deseja apagar este cliente?")) return;
+
+clientes.splice(index, 1);
+guardarClientes();
+atualizarSelect();
+alert("Cliente apagado!");
 }
 
 // Mostrar ficha
