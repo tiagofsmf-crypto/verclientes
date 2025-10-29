@@ -5,20 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gaia Phone - Gestão de Clientes</title>
 <style>
-body {
-font-family: Arial, sans-serif;
+/* RESET */
+body, h1, h2, h3, p, input, select, button {
 margin: 0;
-background-color: #f4f4f4;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Login */
+/* BODY */
+body {
+background-color: #f0f0f0;
+color: #333;
+}
+
+/* LOGIN BOX */
 #loginBox {
 max-width: 400px;
 margin: 100px auto;
-background: white;
+background: #ffffff;
 padding: 30px;
 border-radius: 12px;
-box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 text-align: center;
 }
 #loginBox img {
@@ -38,26 +46,26 @@ padding: 12px;
 width: 100%;
 font-size: 16px;
 border-radius: 6px;
-background-color: #007BFF;
+background-color: #555;
 color: white;
 border: none;
 cursor: pointer;
 }
 #loginBox button:hover {
-background-color: #0056b3;
+background-color: #333;
 }
 #errorMsg {
 color: red;
 margin-top: 10px;
 }
 
-/* Site container */
+/* SITE CONTAINER */
 .container {
 display: none;
 padding: 20px;
 }
 
-/* Header */
+/* HEADER */
 h1, h2 {
 text-align: center;
 color: #333;
@@ -68,14 +76,14 @@ margin: 0 auto 20px auto;
 width: 150px;
 }
 
-/* Form & List */
+/* FORM & LIST CONTAINERS */
 .form-container, .list-container {
-background: white;
+background: #ffffff;
 padding: 20px;
 margin: 20px auto;
 max-width: 600px;
 border-radius: 10px;
-box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 input, select, button {
 display: block;
@@ -83,29 +91,28 @@ margin: 10px 0;
 padding: 10px;
 width: 100%;
 font-size: 16px;
-border-radius: 5px;
+border-radius: 6px;
 border: 1px solid #ccc;
 }
 button {
-background-color: #007BFF;
+background-color: #666;
 color: white;
 border: none;
 cursor: pointer;
 }
 button:hover {
-background-color: #0056b3;
+background-color: #444;
 }
 
-/* Print Container */
+/* PRINT CONTAINER */
 .print-container {
 display: none;
 background: white;
-padding: 20px;
-border: 2px solid #333;
+padding: 25px;
 border-radius: 10px;
 max-width: 600px;
 margin: 20px auto;
-box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 text-align: center;
 }
 .print-container h2 {
@@ -218,7 +225,7 @@ atualizarSelect();
 limparCampos();
 }
 
-// Atualizar select de clientes
+// Atualizar select
 function atualizarSelect() {
 const select = document.getElementById('clienteSelect');
 select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
@@ -248,7 +255,6 @@ document.getElementById('pModelo').innerText = cliente.modelo;
 document.getElementById('pAvaria').innerText = cliente.avaria;
 document.getElementById('pData').innerText = cliente.data;
 document.getElementById('pStatus').innerText = cliente.status;
-
 document.getElementById('printContainer').style.display = 'block';
 }
 
