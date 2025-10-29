@@ -5,137 +5,123 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gaia Phone - Gestão de Clientes</title>
 <style>
-body {
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-margin: 0;
-padding: 0;
-background-color: #f5f5f5;
-color: #222;
-}
-
-/* --- Login --- */
+/* Login */
 #loginContainer {
 display: flex;
-flex-direction: column;
-align-items: center;
 justify-content: center;
+align-items: center;
 height: 100vh;
+background-color: #1E3A5F; /* Azul clássico */
+flex-direction: column;
 }
-#loginContainer input {
-width: 250px;
-margin: 10px 0;
+#loginContainer input, #loginContainer button {
 padding: 10px;
-border-radius: 5px;
-border: 1px solid #ccc;
+margin: 5px 0;
+width: 250px;
 font-size: 16px;
+border-radius: 5px;
+border: none;
 }
 #loginContainer button {
-width: 120px;
-background-color: #1a237e;
+background-color: #0B1D3A; /* Azul escuro marinho */
 color: white;
-border: none;
-border-radius: 5px;
 cursor: pointer;
-font-size: 16px;
 }
 #loginContainer button:hover {
-background-color: #0d133c;
+background-color: #06122A;
 }
 
-/* --- Container geral --- */
+/* Body */
+body {
+font-family: Arial, sans-serif;
+margin: 20px;
+background-color: #f4f4f4;
+}
+h1 {
+text-align: center;
+color: #333;
+}
+.logo {
+display: block;
+margin: 0 auto 20px auto;
+width: 150px;
+}
 .container {
-max-width: 1000px;
-margin: 0 auto;
-padding: 20px;
-display: none; /* Esconde até login */
-}
-
-/* --- Flex layout --- */
-.flex-row {
 display: flex;
 gap: 20px;
-margin-top: 20px;
 }
 .form-container, .list-container {
 background: white;
 padding: 20px;
-border-radius: 10px;
+border-radius: 8px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 flex: 1;
-box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
-.form-container input, .list-container input, select, button {
-width: 100%;
+input, select, button {
+display: block;
+margin: 10px 0;
 padding: 10px;
-margin: 8px 0;
+width: 100%;
+font-size: 16px;
 border-radius: 5px;
 border: 1px solid #ccc;
-font-size: 16px;
 }
 button {
-background-color: #1a237e;
+background-color: #0B1D3A;
 color: white;
+border: none;
 cursor: pointer;
 }
 button:hover {
-background-color: #0d133c;
+background-color: #06122A;
 }
 
-/* --- Ficha de impressão --- */
+/* Print Container */
 .print-container {
 display: none;
 background: white;
-padding: 25px;
+padding: 20px;
 border-radius: 10px;
 max-width: 600px;
 margin: 20px auto;
 text-align: center;
-box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
-.print-container .header-logo {
-width: 150px; /* mantém tamanho normal como antes */
+.print-container img {
+width: 100px;
 margin-bottom: 10px;
 }
 .print-container h2 {
 margin-bottom: 5px;
-font-size: 22px;
+font-size: 24px;
 }
 .print-container p {
 margin: 5px 0;
+font-size: 16px;
+}
+.print-container hr {
+margin: 10px 0;
 }
 @media print {
-body * {
-visibility: hidden;
-}
-.print-container, .print-container * {
-visibility: visible;
-}
-.print-container {
-position: absolute;
-left: 0;
-top: 0;
-width: 100%;
-margin: 0;
-padding: 20px;
-border: none;
-box-shadow: none;
-}
+body * { visibility: hidden; }
+.print-container, .print-container * { visibility: visible; }
+.print-container { position: absolute; left:0; top:0; width:100%; margin:0; padding:20px; border:none; box-shadow:none; }
 }
 </style>
 </head>
 <body>
 
-<!-- Login -->
+<!-- LOGIN -->
 <div id="loginContainer">
-<img src="logo.png" alt="Logo Gaia Phone" style="width:150px;margin-bottom:20px;">
-<input type="password" id="password" placeholder="Insira a senha">
-<button onclick="login()">Entrar</button>
+<img src="logo.png" alt="Logo Gaia Phone" class="logo">
+<input type="password" id="senha" placeholder="Insira a senha">
+<button onclick="verificarLogin()">Entrar</button>
 </div>
 
-<!-- Conteúdo principal -->
-<div class="container">
+<!-- SITE -->
+<div id="mainContainer" style="display:none;">
 <h1>Gaia Phone - Gestão de Clientes</h1>
 
-<div class="flex-row">
+<div class="container">
 <div class="form-container">
 <h2>Adicionar Cliente</h2>
 <input type="text" id="nome" placeholder="Nome">
@@ -158,9 +144,8 @@ box-shadow: none;
 </div>
 </div>
 
-<!-- Ficha de impressão -->
 <div class="print-container" id="printContainer">
-<img src="logo.png" alt="Logo Gaia Phone" class="header-logo">
+<img src="logo.png" alt="Logo Gaia Phone">
 <h2>Reparações de Telemóveis</h2>
 <p>Rua José Rocha, 189 A, 4430-123 V.N. Gaia</p>
 <p>222 441 808 | 931 965 105</p>
@@ -173,23 +158,27 @@ box-shadow: none;
 <p><strong>Modelo:</strong> <span id="pModelo"></span></p>
 <p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
 <p><strong>Data de Registo:</strong> <span id="pData"></span></p>
-</div>
+<p><strong>Status:</strong> <span id="pStatus"></span></p>
 </div>
 
 <script>
-// --- Login ---
-function login() {
-const pass = document.getElementById('password').value;
-if(pass === "roque") {
+// LOGIN
+function verificarLogin() {
+const senha = document.getElementById('senha').value;
+if(senha === 'roque') {
 document.getElementById('loginContainer').style.display = 'none';
-document.querySelector('.container').style.display = 'block';
+document.getElementById('mainContainer').style.display = 'block';
 } else {
-alert("Senha incorreta!");
+alert('Senha incorreta!');
 }
 }
 
-// --- Clientes ---
-let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+// CLIENTES
+let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
+
+function salvarLocalStorage() {
+localStorage.setItem('clientes', JSON.stringify(clientes));
+}
 
 function adicionarCliente() {
 const nome = document.getElementById('nome').value;
@@ -200,98 +189,85 @@ const modelo = document.getElementById('modelo').value;
 const avaria = document.getElementById('avaria').value;
 const data = new Date().toLocaleDateString();
 
-if(!nome){ alert('Preencha o nome do cliente!'); return; }
+if(!nome) { alert('Preencha o nome!'); return; }
 
-const cliente = {nome, telefone, imei, marca, modelo, avaria, data};
-clientes.push(cliente);
-localStorage.setItem('clientes', JSON.stringify(clientes));
+clientes.push({nome, telefone, imei, marca, modelo, avaria, data, status:''});
+salvarLocalStorage();
 atualizarSelect();
 limparCampos();
-mostrarClienteIndex(clientes.length-1); // mostra imediatamente
-}
-
-function limparCampos() {
-['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value='');
 }
 
 function atualizarSelect() {
 const select = document.getElementById('clienteSelect');
 select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((c,index)=>{
+clientes.forEach((c,i) => {
 const option = document.createElement('option');
-option.value = index;
+option.value = i;
 option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
 select.add(option);
 });
+}
+
+function limparCampos() {
+['nome','telefone','imei','marca','modelo','avaria'].forEach(id=>document.getElementById(id).value='');
 }
 
 function mostrarCliente() {
 const index = document.getElementById('clienteSelect').value;
-if(index==="") return;
-mostrarClienteIndex(index);
-}
-
-function mostrarClienteIndex(index) {
-const cliente = clientes[index];
-document.getElementById('pNome').innerText = cliente.nome;
-document.getElementById('pTelefone').innerText = cliente.telefone;
-document.getElementById('pIMEI').innerText = cliente.imei;
-document.getElementById('pMarca').innerText = cliente.marca;
-document.getElementById('pModelo').innerText = cliente.modelo;
-document.getElementById('pAvaria').innerText = cliente.avaria;
-document.getElementById('pData').innerText = cliente.data;
+if(index==='') return;
+const c = clientes[index];
+document.getElementById('pNome').innerText = c.nome;
+document.getElementById('pTelefone').innerText = c.telefone;
+document.getElementById('pIMEI').innerText = c.imei;
+document.getElementById('pMarca').innerText = c.marca;
+document.getElementById('pModelo').innerText = c.modelo;
+document.getElementById('pAvaria').innerText = c.avaria;
+document.getElementById('pData').innerText = c.data;
+document.getElementById('pStatus').innerText = c.status;
 document.getElementById('printContainer').style.display='block';
 }
 
-// Filtrar clientes
-function filtrarClientes(){
+function filtrarClientes() {
 const filtro = document.getElementById('pesquisa').value.toLowerCase();
 const select = document.getElementById('clienteSelect');
-select.innerHTML='<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((c,index)=>{
+select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+clientes.forEach((c,i)=>{
 if(c.telefone.toLowerCase().includes(filtro) || c.imei.toLowerCase().includes(filtro)){
 const option = document.createElement('option');
-option.value = index;
+option.value = i;
 option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
 select.add(option);
 }
 });
 }
 
-// Editar e Guardar cliente
-let editarIndex = null;
-function editarCliente(){
+function editarCliente() {
 const index = document.getElementById('clienteSelect').value;
-if(index===""){ alert("Selecione um cliente para editar"); return; }
-editarIndex = index;
+if(index==='') return;
 const c = clientes[index];
-document.getElementById('nome').value=c.nome;
-document.getElementById('telefone').value=c.telefone;
-document.getElementById('imei').value=c.imei;
-document.getElementById('marca').value=c.marca;
-document.getElementById('modelo').value=c.modelo;
-document.getElementById('avaria').value=c.avaria;
-window.scrollTo({top:document.getElementById('nome').offsetTop, behavior:'smooth'});
+document.getElementById('nome').value = c.nome;
+document.getElementById('telefone').value = c.telefone;
+document.getElementById('imei').value = c.imei;
+document.getElementById('marca').value = c.marca;
+document.getElementById('modelo').value = c.modelo;
+document.getElementById('avaria').value = c.avaria;
+window.scrollTo({top: document.getElementById('nome').offsetTop-20, behavior:'smooth'});
 }
 
-function guardarCliente(){
-if(editarIndex===null){ alert("Não há cliente sendo editado"); return; }
-const c = clientes[editarIndex];
-c.nome = document.getElementById('nome').value;
-c.telefone = document.getElementById('telefone').value;
-c.imei = document.getElementById('imei').value;
-c.marca = document.getElementById('marca').value;
-c.modelo = document.getElementById('modelo').value;
-c.avaria = document.getElementById('avaria').value;
-localStorage.setItem('clientes', JSON.stringify(clientes));
+function guardarCliente() {
+const index = document.getElementById('clienteSelect').value;
+if(index==='') return;
+clientes[index].nome = document.getElementById('nome').value;
+clientes[index].telefone = document.getElementById('telefone').value;
+clientes[index].imei = document.getElementById('imei').value;
+clientes[index].marca = document.getElementById('marca').value;
+clientes[index].modelo = document.getElementById('modelo').value;
+clientes[index].avaria = document.getElementById('avaria').value;
+salvarLocalStorage();
 atualizarSelect();
-mostrarClienteIndex(editarIndex);
-editarIndex = null;
-limparCampos();
-document.getElementById('pesquisa').focus();
+mostrarCliente();
 }
 
-// Inicializar
 atualizarSelect();
 </script>
 
