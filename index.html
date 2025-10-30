@@ -238,8 +238,12 @@ document.getElementById('pMarca').textContent=c.marca;
 document.getElementById('pModelo').textContent=c.modelo;
 document.getElementById('pAvaria').textContent=c.avaria;
 document.getElementById('pData').textContent=c.data;
+
+// obter status escolhido e mostrar na ficha
 const statusSel=document.querySelector('input[name="status"]:checked');
-document.getElementById('pStatus').textContent=statusSel?statusSel.value:'Não definido';
+const status=statusSel?statusSel.value:"Não definido";
+document.getElementById('pStatus').textContent=status;
+
 document.getElementById('printContainer').style.display='block';
 document.getElementById('printContainer').scrollIntoView({behavior:'smooth'});
 }
