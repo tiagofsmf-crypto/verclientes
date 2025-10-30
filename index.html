@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gaia Phone - Gestão de Clientes</title>
 <style>
-/* Reset e fonte */
 body, html {
 margin: 0;
 padding: 0;
@@ -21,7 +20,7 @@ flex-direction: column;
 align-items: center;
 justify-content: center;
 height: 100vh;
-background-color: #1a1a1a;
+background-color: #0d1a33;
 color: #fff;
 }
 .login-container img {
@@ -39,14 +38,14 @@ border: 1px solid #555;
 padding: 10px;
 width: 250px;
 margin-top: 10px;
-background-color: #0d1a33;
+background-color: #16294d;
 border: none;
 color: white;
 border-radius: 5px;
 cursor: pointer;
 }
 .login-container button:hover {
-background-color: #16294d;
+background-color: #1f3a6a;
 }
 
 /* SITE */
@@ -57,7 +56,7 @@ max-width: 900px;
 margin: 0 auto;
 }
 
-/* Layout moderno: campos e botões */
+/* Layout */
 .flex-row {
 display: flex;
 flex-wrap: wrap;
@@ -68,6 +67,7 @@ display: flex;
 flex-direction: column;
 flex: 1;
 }
+
 input, select, button {
 padding: 10px;
 margin: 5px 0;
@@ -85,7 +85,7 @@ button:hover {
 background-color: #16294d;
 }
 
-/* Ficha de impressão */
+/* Ficha Impressão */
 .print-container {
 display: none;
 background: white;
@@ -130,12 +130,12 @@ body * { visibility: hidden; }
 
 <div class="flex-row">
 <div class="flex-column">
-<h2>Adicionar Cliente</h2>
+<h2>Adicionar / Editar Cliente</h2>
 <input type="text" id="nome" placeholder="Nome">
 <input type="text" id="telefone" placeholder="Telefone">
 <input type="text" id="imei" placeholder="IMEI">
-<input type="text" id="marca" placeholder="Marca do Equipamento">
-<input type="text" id="modelo" placeholder="Modelo do Equipamento">
+<input type="text" id="marca" placeholder="Marca">
+<input type="text" id="modelo" placeholder="Modelo">
 <input type="text" id="avaria" placeholder="Avaria">
 <button onclick="adicionarCliente()">Adicionar Cliente</button>
 <button onclick="guardarCliente()">Guardar Cliente</button>
@@ -143,7 +143,7 @@ body * { visibility: hidden; }
 
 <div class="flex-column">
 <h2>Clientes</h2>
-<input type="text" id="pesquisa" placeholder="Procurar pelo Telefone ou IMEI" oninput="filtrarClientes()">
+<input type="text" id="pesquisa" placeholder="Procurar por Telefone ou IMEI" oninput="filtrarClientes()">
 <select id="clienteSelect" onchange="mostrarCliente()">
 <option value="">-- Selecionar Cliente --</option>
 </select>
@@ -153,7 +153,7 @@ body * { visibility: hidden; }
 <label><input type="radio" name="status" value="Reparado"> Reparado</label>
 <label><input type="radio" name="status" value="Não Reparado"> Não Reparado</label>
 
-<button onclick="imprimirCliente()">Imprimir</button>
+<button onclick="mostrarFicha()">Imprimir</button>
 </div>
 </div>
 
@@ -170,119 +170,124 @@ body * { visibility: hidden; }
 <p><strong>Marca:</strong> <span id="pMarca"></span></p>
 <p><strong>Modelo:</strong> <span id="pModelo"></span></p>
 <p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
-<p><strong>Data de Registo:</strong> <span id="pData"></span></p>
+<p><strong>Data:</strong> <span id="pData"></span></p>
 <p><strong>Status:</strong> <span id="pStatus"></span></p>
 </div>
 </div>
 
 <script>
-const PASSWORD = "roque"; // Senha do login
-let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+const PASSWORD = "roque";
+let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+let clienteEditando = null;
 
 // LOGIN
-const loginInput = document.getElementById('loginPassword');
-loginInput.addEventListener("keyup", function(e){ if(e.key === "Enter") login(); });
-
-function login(){
-const val = document.getElementById('loginPassword').value;
-if(val === PASSWORD){
-document.getElementById('loginDiv').style.display = "none";
-document.getElementById('siteDiv').style.display = "block";
+document.getElementById("loginPassword").addEventListener("keyup", e => {
+if (e.key === "Enter") login();
+});
+function login() {
+if (document.getElementById("loginPassword").value === PASSWORD) {
+document.getElementById("loginDiv").style.display = "none";
+document.getElementById("siteDiv").style.display = "block";
 atualizarSelect();
-} else { alert("Senha incorreta!"); }
+} else alert("Senha incorreta!");
 }
 
 // ADICIONAR CLIENTE
-function adicionarCliente(){
-const nome = document.getElementById('nome').value;
-const telefone = document.getElementById('telefone').value;
-const imei = document.getElementById('imei').value;
-const marca = document.getElementById('marca').value;
-const modelo = document.getElementById('modelo').value;
-const avaria = document.getElementById('avaria').value;
+function adicionarCliente() {
+const nome = nomeValor(), telefone = telefoneValor(), imei = imeiValor(), marca = marcaValor(), modelo = modeloValor(), avaria = avariaValor();
 const data = new Date().toLocaleDateString();
-if(!nome){ alert('Preencha o nome do cliente!'); return; }
-clientes.push({nome, telefone, imei, marca, modelo, avaria, data});
+if (!nome) return alert("Preencha o nome!");
+
+if (clienteEditando !== null) clientes[clienteEditando] = { nome, telefone, imei, marca, modelo, avaria, data };
+else clientes.push({ nome, telefone, imei, marca, modelo, avaria, data });
+
+localStorage.setItem("clientes", JSON.stringify(clientes));
+clienteEditando = null;
 atualizarSelect();
 limparCampos();
 }
 
-// GUARDAR CLIENTES NO LOCALSTORAGE
-function guardarCliente(){
-localStorage.setItem('clientes', JSON.stringify(clientes));
-alert("Clientes guardados!");
+function guardarCliente() {
+localStorage.setItem("clientes", JSON.stringify(clientes));
+alert("Clientes guardados com sucesso!");
 }
+
+function nomeValor(){return document.getElementById("nome").value;}
+function telefoneValor(){return document.getElementById("telefone").value;}
+function imeiValor(){return document.getElementById("imei").value;}
+function marcaValor(){return document.getElementById("marca").value;}
+function modeloValor(){return document.getElementById("modelo").value;}
+function avariaValor(){return document.getElementById("avaria").value;}
 
 // LIMPAR CAMPOS
 function limparCampos(){
-['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value='');
+['nome','telefone','imei','marca','modelo','avaria'].forEach(id=>document.getElementById(id).value="");
 }
 
 // ATUALIZAR SELECT
 function atualizarSelect(){
-const select = document.getElementById('clienteSelect');
-select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+const select=document.getElementById("clienteSelect");
+select.innerHTML='<option value="">-- Selecionar Cliente --</option>';
 clientes.forEach((c,i)=>{
-const option = document.createElement('option');
-option.value = i;
-option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
-select.add(option);
+const o=document.createElement("option");
+o.value=i;o.text=`${c.nome} | ${c.telefone} | ${c.imei}`;
+select.add(o);
 });
 }
 
 // MOSTRAR CLIENTE
 function mostrarCliente(){
-const index = document.getElementById('clienteSelect').value;
-if(index === "") return;
-const cliente = clientes[index];
-document.getElementById('pNome').innerText = cliente.nome;
-document.getElementById('pTelefone').innerText = cliente.telefone;
-document.getElementById('pIMEI').innerText = cliente.imei;
-document.getElementById('pMarca').innerText = cliente.marca;
-document.getElementById('pModelo').innerText = cliente.modelo;
-document.getElementById('pAvaria').innerText = cliente.avaria;
-document.getElementById('pData').innerText = cliente.data;
+const i=document.getElementById("clienteSelect").value;
+if(i==="")return;
+const c=clientes[i];
+document.getElementById("pNome").innerText=c.nome;
+document.getElementById("pTelefone").innerText=c.telefone;
+document.getElementById("pIMEI").innerText=c.imei;
+document.getElementById("pMarca").innerText=c.marca;
+document.getElementById("pModelo").innerText=c.modelo;
+document.getElementById("pAvaria").innerText=c.avaria;
+document.getElementById("pData").innerText=c.data;
 }
 
-// FILTRAR CLIENTES
+// FILTRAR
 function filtrarClientes(){
-const filtro = document.getElementById('pesquisa').value.toLowerCase();
-const select = document.getElementById('clienteSelect');
-select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
+const f=document.getElementById("pesquisa").value.toLowerCase();
+const s=document.getElementById("clienteSelect");
+s.innerHTML='<option value="">-- Selecionar Cliente --</option>';
 clientes.forEach((c,i)=>{
-if(c.telefone.toLowerCase().includes(filtro) || c.imei.toLowerCase().includes(filtro)){
-const option = document.createElement('option');
-option.value = i;
-option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
-select.add(option);
+if(c.telefone.toLowerCase().includes(f)||c.imei.toLowerCase().includes(f)){
+const o=document.createElement("option");
+o.value=i;o.text=`${c.nome} | ${c.telefone} | ${c.imei}`;
+s.add(o);
 }
 });
 }
 
-// EDITAR CLIENTE
+// EDITAR
 function editarCliente(){
-const index = document.getElementById('clienteSelect').value;
-if(index === "") { alert("Selecione um cliente para editar!"); return; }
-const c = clientes[index];
-document.getElementById('nome').value = c.nome;
-document.getElementById('telefone').value = c.telefone;
-document.getElementById('imei').value = c.imei;
-document.getElementById('marca').value = c.marca;
-document.getElementById('modelo').value = c.modelo;
-document.getElementById('avaria').value = c.avaria;
-window.scrollTo({ top: 0, behavior: 'smooth' });
-clientes.splice(index,1); // Remove o antigo enquanto edita
+const i=document.getElementById("clienteSelect").value;
+if(i==="")return alert("Selecione um cliente!");
+const c=clientes[i];
+clienteEditando=i;
+document.getElementById("nome").value=c.nome;
+document.getElementById("telefone").value=c.telefone;
+document.getElementById("imei").value=c.imei;
+document.getElementById("marca").value=c.marca;
+document.getElementById("modelo").value=c.modelo;
+document.getElementById("avaria").value=c.avaria;
+window.scrollTo({top:0,behavior:"smooth"});
 }
 
-// IMPRIMIR CLIENTE
-function imprimirCliente(){
-const index = document.getElementById('clienteSelect').value;
-if(index === "") { alert("Selecione um cliente!"); return; }
+// MOSTRAR FICHA
+function mostrarFicha(){
+const i=document.getElementById("clienteSelect").value;
+if(i==="")return alert("Selecione um cliente!");
 mostrarCliente();
-const status = document.querySelector('input[name="status"]:checked');
-document.getElementById('pStatus').innerText = status ? status.value : '';
-document.getElementById('printContainer').style.display = "block";
-window.print();
+const s=document.querySelector('input[name="status"]:checked');
+document.getElementById("pStatus").innerText=s?s.value:"";
+document.getElementById("printContainer").style.display="block";
+window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+setTimeout(()=>window.print(),800);
 }
 </script>
 
