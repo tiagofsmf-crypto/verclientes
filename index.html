@@ -3,12 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestão de Clientes - Gaia Phone</title>
+<title>Gaia Phone - Gestão de Clientes</title>
 <style>
+/* Reset e fontes */
 body {
+margin: 0;
 font-family: Arial, sans-serif;
-margin: 20px;
 background-color: #f4f4f4;
+}
+
+/* Login */
+#loginContainer {
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+height: 100vh;
+background-color: #1f3b4d; /* azul escuro neutro */
+color: white;
+}
+#loginContainer img {
+width: 120px;
+margin-bottom: 20px;
+}
+#loginContainer input {
+padding: 10px;
+margin: 5px 0;
+width: 250px;
+border-radius: 5px;
+border: none;
+}
+#loginContainer button {
+margin-top: 10px;
+padding: 10px;
+width: 270px;
+border-radius: 5px;
+border: none;
+background-color: #142635; /* azul marinho escuro */
+color: white;
+cursor: pointer;
+}
+#loginContainer button:hover {
+background-color: #0f1d2a;
+}
+
+/* Main site */
+#mainContainer {
+display: none;
+padding: 20px;
 }
 h1 {
 text-align: center;
@@ -19,6 +61,8 @@ display: block;
 margin: 0 auto 20px auto;
 width: 150px;
 }
+
+/* Formulários e listas */
 .form-container, .list-container {
 background: white;
 padding: 20px;
@@ -36,32 +80,32 @@ border-radius: 5px;
 border: 1px solid #ccc;
 }
 button {
-background-color: #1A2B4C;
+background-color: #142635;
 color: white;
 border: none;
 cursor: pointer;
 }
 button:hover {
-background-color: #0F1A33;
+background-color: #0f1d2a;
 }
+
+/* Impressão */
 .print-container {
 display: none;
 background: white;
 padding: 20px;
-border: 2px solid #333;
-border-radius: 10px;
+border-radius: 8px;
 max-width: 600px;
 margin: 20px auto;
-box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 text-align: center;
+box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
-.print-container h2 {
-margin-bottom: 5px;
-font-size: 24px;
-}
-.print-container .header-logo {
+.print-container img {
 width: 100px;
 margin-bottom: 10px;
+}
+.print-container h2 {
+margin: 5px 0;
 }
 .print-container p {
 margin: 5px 0;
@@ -70,34 +114,25 @@ font-size: 16px;
 .print-container hr {
 margin: 10px 0;
 }
-.status-radio {
-margin: 5px 0;
-}
 @media print {
-body * {
-visibility: hidden;
-}
-.print-container, .print-container * {
-visibility: visible;
-}
-.print-container {
-position: absolute;
-left: 0;
-top: 0;
-width: 100%;
-margin: 0;
-padding: 20px;
-border: none;
-box-shadow: none;
-}
-.no-print {
-display: none;
-}
+body * { visibility: hidden; }
+.print-container, .print-container * { visibility: visible; }
+.print-container { position: absolute; left:0; top:0; width:100%; margin:0; padding:20px; box-shadow:none; }
 }
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
+<div id="loginContainer">
+<img src="logo.png" alt="Logo Gaia Phone">
+<h2>Entrar</h2>
+<input type="password" id="password" placeholder="Palavra-passe">
+<button onclick="login()">Entrar</button>
+</div>
+
+<!-- SITE -->
+<div id="mainContainer">
 <h1>Gaia Phone - Gestão de Clientes</h1>
 <img src="logo.png" alt="Logo Gaia Phone" class="logo">
 
@@ -110,6 +145,7 @@ display: none;
 <input type="text" id="modelo" placeholder="Modelo do Equipamento">
 <input type="text" id="avaria" placeholder="Avaria">
 <button onclick="adicionarCliente()">Adicionar Cliente</button>
+<button onclick="guardarCliente()">Guardar Cliente</button>
 </div>
 
 <div class="list-container">
@@ -118,12 +154,13 @@ display: none;
 <select id="clienteSelect" onchange="mostrarCliente()">
 <option value="">-- Selecionar Cliente --</option>
 </select>
-<button class="no-print" onclick="editarCliente()">Editar Cliente</button>
-<button class="no-print" onclick="guardarClientes()">Guardar Cliente</button>
+<button onclick="editarCliente()">Editar Cliente</button>
+<button onclick="guardarCliente()">Guardar Cliente</button>
 </div>
 
+<!-- IMPRESSÃO -->
 <div class="print-container" id="printContainer">
-<img src="logo.png" alt="Logo Gaia Phone" class="header-logo">
+<img src="logo.png" alt="Logo Gaia Phone">
 <h2>Reparações de Telemóveis</h2>
 <p>Rua José Rocha, 189 A, 4430-123 V.N. Gaia</p>
 <p>222 441 808 | 931 965 105</p>
@@ -135,25 +172,36 @@ display: none;
 <p><strong>Marca:</strong> <span id="pMarca"></span></p>
 <p><strong>Modelo:</strong> <span id="pModelo"></span></p>
 <p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
-<p><strong>Data de Registo:</strong> <span id="pData"></span></p>
-<div class="status-radio no-print">
-<label><input type="radio" name="status" value="Reparado" checked> Reparado</label>
-<label><input type="radio" name="status" value="Não Reparado"> Não Reparado</label>
-</div>
 <p><strong>Status:</strong> <span id="pStatus"></span></p>
-<button class="no-print" onclick="imprimirFicha()">Imprimir</button>
+<p><strong>Data de Registo:</strong> <span id="pData"></span></p>
+<button onclick="window.print()" style="display:none;">Imprimir</button>
 </div>
 
 <script>
-let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+// LOGIN
+function login() {
+const pw = document.getElementById('password').value;
+if(pw === 'roque') {
+document.getElementById('loginContainer').style.display = 'none';
+document.getElementById('mainContainer').style.display = 'block';
+carregarClientes();
+} else {
+alert('Palavra-passe incorreta!');
+}
+}
+document.getElementById('password').addEventListener("keyup", function(event){
+if(event.key === "Enter") login();
+});
 
-// Salvar no localStorage
-function guardarClientes() {
-localStorage.setItem('clientes', JSON.stringify(clientes));
-alert('Clientes guardados!');
+// CLIENTES
+let clientes = [];
+
+function carregarClientes() {
+const data = localStorage.getItem('clientes');
+if(data) clientes = JSON.parse(data);
+atualizarSelect();
 }
 
-// Adicionar cliente
 function adicionarCliente() {
 const nome = document.getElementById('nome').value;
 const telefone = document.getElementById('telefone').value;
@@ -162,21 +210,19 @@ const marca = document.getElementById('marca').value;
 const modelo = document.getElementById('modelo').value;
 const avaria = document.getElementById('avaria').value;
 const data = new Date().toLocaleDateString();
+const status = "Não reparado";
 
-if (!nome) { alert('Preencha o nome do cliente!'); return; }
+if(!nome) { alert('Preencha o nome!'); return; }
 
-const cliente = {nome, telefone, imei, marca, modelo, avaria, data};
-clientes.push(cliente);
+clientes.push({nome, telefone, imei, marca, modelo, avaria, status, data});
 atualizarSelect();
 limparCampos();
-guardarClientes();
 }
 
-// Atualizar select
 function atualizarSelect() {
 const select = document.getElementById('clienteSelect');
 select.innerHTML = '<option value="">-- Selecionar Cliente --</option>';
-clientes.forEach((c,index)=>{
+clientes.forEach((c, index) => {
 const option = document.createElement('option');
 option.value = index;
 option.text = `${c.nome} | ${c.telefone} | ${c.imei}`;
@@ -184,32 +230,56 @@ select.add(option);
 });
 }
 
-// Limpar campos
-function limparCampos(){
-['nome','telefone','imei','marca','modelo','avaria'].forEach(id=>document.getElementById(id).value='');
+function limparCampos() {
+['nome','telefone','imei','marca','modelo','avaria'].forEach(id => document.getElementById(id).value='');
 }
 
-// Mostrar cliente
 function mostrarCliente() {
 const index = document.getElementById('clienteSelect').value;
 if(index==="") return;
-const cliente = clientes[index];
-document.getElementById('pNome').innerText = cliente.nome;
-document.getElementById('pTelefone').innerText = cliente.telefone;
-document.getElementById('pIMEI').innerText = cliente.imei;
-document.getElementById('pMarca').innerText = cliente.marca;
-document.getElementById('pModelo').innerText = cliente.modelo;
-document.getElementById('pAvaria').innerText = cliente.avaria;
-document.getElementById('pData').innerText = cliente.data;
-
-// Status default na impressão
-const status = document.querySelector('input[name="status"]:checked').value;
-document.getElementById('pStatus').innerText = status;
-
+const c = clientes[index];
+document.getElementById('pNome').innerText = c.nome;
+document.getElementById('pTelefone').innerText = c.telefone;
+document.getElementById('pIMEI').innerText = c.imei;
+document.getElementById('pMarca').innerText = c.marca;
+document.getElementById('pModelo').innerText = c.modelo;
+document.getElementById('pAvaria').innerText = c.avaria;
+document.getElementById('pStatus').innerText = c.status;
+document.getElementById('pData').innerText = c.data;
 document.getElementById('printContainer').style.display = 'block';
 }
 
-// Filtrar clientes
+// EDITAR CLIENTE
+function editarCliente() {
+const index = document.getElementById('clienteSelect').value;
+if(index==="") { alert("Selecione um cliente!"); return; }
+const c = clientes[index];
+document.getElementById('nome').value = c.nome;
+document.getElementById('telefone').value = c.telefone;
+document.getElementById('imei').value = c.imei;
+document.getElementById('marca').value = c.marca;
+document.getElementById('modelo').value = c.modelo;
+document.getElementById('avaria').value = c.avaria;
+}
+
+// GUARDAR CLIENTE
+function guardarCliente() {
+const index = document.getElementById('clienteSelect').value;
+if(index==="") { alert("Selecione um cliente!"); return; }
+const c = clientes[index];
+c.nome = document.getElementById('nome').value;
+c.telefone = document.getElementById('telefone').value;
+c.imei = document.getElementById('imei').value;
+c.marca = document.getElementById('marca').value;
+c.modelo = document.getElementById('modelo').value;
+c.avaria = document.getElementById('avaria').value;
+localStorage.setItem('clientes', JSON.stringify(clientes));
+atualizarSelect();
+mostrarCliente();
+alert('Cliente guardado!');
+}
+
+// FILTRAR
 function filtrarClientes() {
 const filtro = document.getElementById('pesquisa').value.toLowerCase();
 const select = document.getElementById('clienteSelect');
@@ -223,16 +293,6 @@ select.add(option);
 }
 });
 }
-
-// Imprimir ficha
-function imprimirFicha(){
-const status = document.querySelector('input[name="status"]:checked').value;
-document.getElementById('pStatus').innerText = status;
-window.print();
-}
-
-// Carregar clientes ao abrir
-atualizarSelect();
 </script>
 
 </body>
