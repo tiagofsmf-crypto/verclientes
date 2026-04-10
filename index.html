@@ -12,7 +12,7 @@ font-family:Arial;
 background:#f2f4f7;
 }
 
-/* LOGIN BONITO */
+/* LOGIN */
 .login-wrap{
 max-width:420px;
 margin:80px auto;
@@ -80,11 +80,24 @@ cursor:pointer;
 /* PRINT */
 .print{
 display:none;
+max-width:700px;
+margin:20px auto;
+padding:20px;
+background:#fff;
+text-align:center;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
+
 @media print{
 body *{visibility:hidden}
 .print, .print *{visibility:visible}
-.print{position:absolute;top:0;left:0;width:100%}
+.print{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+}
 }
 </style>
 </head>
@@ -93,6 +106,7 @@ body *{visibility:hidden}
 
 <!-- LOGIN -->
 <div class="login-wrap" id="loginWrap">
+
 <img src="logo.png" style="width:120px;margin-bottom:10px">
 
 <h2>Gaia Phone</h2>
@@ -105,6 +119,7 @@ body *{visibility:hidden}
 <p onclick="recoverPassword()" style="cursor:pointer;color:#0d2340;margin-top:10px">
 📧 Recuperar palavra-passe
 </p>
+
 </div>
 
 <!-- APP -->
@@ -132,8 +147,11 @@ body *{visibility:hidden}
 
 <select id="lista" size="10"></select>
 
-<button onclick="abrirFicha()">Abrir Ficha</button>
-<button onclick="printFicha()">Imprimir</button>
+<div style="display:flex;gap:10px;margin-top:10px">
+<button onclick="abrirFicha()" style="flex:1">Abrir Ficha</button>
+<button onclick="printFicha()" style="flex:1">Imprimir</button>
+<button onclick="deleteCliente()" style="flex:1;background:#b30000">Eliminar</button>
+</div>
 
 <div style="margin-top:10px">
 <label><input type="radio" name="status" value="Reparado"> Reparado</label>
@@ -145,6 +163,30 @@ body *{visibility:hidden}
 </div>
 </div>
 
+<!-- FICHA IMPRESSÃO -->
+<div class="print" id="printArea">
+
+<img src="logo.png" style="width:100px;margin-bottom:10px">
+
+<h2>Gaia Phone - Ficha de Cliente</h2>
+
+<p><b>Nome:</b> <span id="pNome"></span></p>
+<p><b>Telefone:</b> <span id="pTelefone"></span></p>
+<p><b>IMEI:</b> <span id="pIMEI"></span></p>
+<p><b>Marca:</b> <span id="pMarca"></span></p>
+<p><b>Modelo:</b> <span id="pModelo"></span></p>
+<p><b>Avaria:</b> <span id="pAvaria"></span></p>
+<p><b>Status:</b> <span id="pStatus"></span></p>
+
+<hr>
+
+<div class="small">
+Rua José Rocha, 189 A — V.N. Gaia<br>
+222 441 808 • 931 965 105 • gaiaphone@gmail.com
+</div>
+
+</div>
+
 <!-- FIREBASE LOGIN -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
@@ -154,7 +196,6 @@ signInWithEmailAndPassword,
 sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-/* FIREBASE */
 const firebaseConfig = {
 apiKey: "AIzaSyD9emhCy-3-xZIvlq8B3zHNg_JjIckfyCk",
 authDomain: "gaiaphone-4a260.firebaseapp.com",
@@ -167,9 +208,7 @@ appId: "1:867023294236:web:e0b08ffdfa19aa4c2cb4d9"
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* LOGIN */
 window.tryLogin = function(){
-
 const email = document.getElementById("email").value;
 const password = document.getElementById("password").value;
 
@@ -182,9 +221,7 @@ loadClientes();
 .catch(()=>alert("Login errado"));
 };
 
-/* RECOVER */
 window.recoverPassword = function(){
-
 const email = document.getElementById("email").value;
 
 if(!email){
@@ -196,13 +233,21 @@ sendPasswordResetEmail(auth,email)
 .then(()=>alert("Email enviado"))
 .catch(()=>alert("Erro"));
 };
-
 </script>
 
-<!-- SISTEMA LOCAL (CORRIGIDO E FUNCIONAL) -->
+<!-- SISTEMA CLIENTES -->
 <script>
 
 let clientes=[];
+
+/* ENTER LOGIN */
+document.addEventListener("keydown",function(e){
+if(e.key==="Enter"){
+if(document.getElementById("loginWrap").style.display!=="none"){
+tryLogin();
+}
+}
+});
 
 /* SAVE */
 function save(){
@@ -218,7 +263,6 @@ render();
 /* RENDER */
 function render(){
 lista.innerHTML="";
-
 clientes.forEach((c,i)=>{
 let opt=document.createElement("option");
 opt.value=i;
@@ -227,34 +271,23 @@ lista.add(opt);
 });
 }
 
-/* ADD CLIENTE (CORRIGIDO) */
+/* ADD */
 function addCliente(){
 
 const c={
-nome:document.getElementById("nome").value,
-telefone:document.getElementById("telefone").value,
-imei:document.getElementById("imei").value,
-marca:document.getElementById("marca").value,
-modelo:document.getElementById("modelo").value,
-avaria:document.getElementById("avaria").value
+nome:nome.value,
+telefone:telefone.value,
+imei:imei.value,
+marca:marca.value,
+modelo:modelo.value,
+avaria:avaria.value
 };
-
-if(!c.nome){
-alert("Nome obrigatório");
-return;
-}
 
 clientes.push(c);
 save();
 render();
 
-/* limpar */
-document.getElementById("nome").value="";
-document.getElementById("telefone").value="";
-document.getElementById("imei").value="";
-document.getElementById("marca").value="";
-document.getElementById("modelo").value="";
-document.getElementById("avaria").value="";
+nome.value=telefone.value=imei.value=marca.value=modelo.value=avaria.value="";
 }
 
 /* FICHA */
@@ -266,20 +299,33 @@ if(i==="")return;
 const c=clientes[i];
 const st=document.querySelector('input[name="status"]:checked');
 
-alert(
-`Nome: ${c.nome}
-Telefone: ${c.telefone}
-IMEI: ${c.imei}
-Marca: ${c.marca}
-Modelo: ${c.modelo}
-Avaria: ${c.avaria}
-Status: ${st?st.value:"-"}`
-);
+document.getElementById("pNome").textContent=c.nome;
+document.getElementById("pTelefone").textContent=c.telefone;
+document.getElementById("pIMEI").textContent=c.imei;
+document.getElementById("pMarca").textContent=c.marca;
+document.getElementById("pModelo").textContent=c.modelo;
+document.getElementById("pAvaria").textContent=c.avaria;
+document.getElementById("pStatus").textContent=st?st.value:"-";
+
+printArea.style.display="block";
 }
 
 /* PRINT */
 function printFicha(){
 window.print();
+}
+
+/* DELETE */
+function deleteCliente(){
+
+const i=lista.value;
+if(i==="")return;
+
+if(!confirm("Eliminar cliente?"))return;
+
+clientes.splice(i,1);
+save();
+render();
 }
 
 </script>
