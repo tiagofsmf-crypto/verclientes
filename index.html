@@ -77,7 +77,7 @@ cursor:pointer;
 
 .small{font-size:12px;color:#666}
 
-/* PRINT */
+/* FICHA */
 .print{
 display:none;
 max-width:700px;
@@ -89,16 +89,28 @@ border-radius:10px;
 box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
 
-@media print{
-body *{visibility:hidden}
-.print, .print *{visibility:visible}
-.print{
-position:absolute;
-top:0;
-left:0;
-width:100%;
+/* IMPRESSÃO CORRIGIDA */
+@media print {
+
+body * {
+visibility: hidden !important;
+}
+
+#printArea {
+display: block !important;
+visibility: visible !important;
+position: absolute;
+left: 0;
+top: 0;
+width: 100%;
+padding: 20px;
+}
+
+#printArea * {
+visibility: visible !important;
 }
 }
+
 </style>
 </head>
 
@@ -209,6 +221,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 window.tryLogin = function(){
+
 const email = document.getElementById("email").value;
 const password = document.getElementById("password").value;
 
@@ -222,6 +235,7 @@ loadClientes();
 };
 
 window.recoverPassword = function(){
+
 const email = document.getElementById("email").value;
 
 if(!email){
@@ -233,6 +247,7 @@ sendPasswordResetEmail(auth,email)
 .then(()=>alert("Email enviado"))
 .catch(()=>alert("Erro"));
 };
+
 </script>
 
 <!-- SISTEMA CLIENTES -->
@@ -275,25 +290,36 @@ lista.add(opt);
 function addCliente(){
 
 const c={
-nome:nome.value,
-telefone:telefone.value,
-imei:imei.value,
-marca:marca.value,
-modelo:modelo.value,
-avaria:avaria.value
+nome:document.getElementById("nome").value,
+telefone:document.getElementById("telefone").value,
+imei:document.getElementById("imei").value,
+marca:document.getElementById("marca").value,
+modelo:document.getElementById("modelo").value,
+avaria:document.getElementById("avaria").value
 };
+
+if(!c.nome){
+alert("Nome obrigatório");
+return;
+}
 
 clientes.push(c);
 save();
 render();
 
-nome.value=telefone.value=imei.value=marca.value=modelo.value=avaria.value="";
+/* limpar */
+document.getElementById("nome").value="";
+document.getElementById("telefone").value="";
+document.getElementById("imei").value="";
+document.getElementById("marca").value="";
+document.getElementById("modelo").value="";
+document.getElementById("avaria").value="";
 }
 
 /* FICHA */
 function abrirFicha(){
 
-const i=lista.value;
+const i=document.getElementById("lista").value;
 if(i==="")return;
 
 const c=clientes[i];
@@ -307,7 +333,7 @@ document.getElementById("pModelo").textContent=c.modelo;
 document.getElementById("pAvaria").textContent=c.avaria;
 document.getElementById("pStatus").textContent=st?st.value:"-";
 
-printArea.style.display="block";
+document.getElementById("printArea").style.display="block";
 }
 
 /* PRINT */
@@ -318,7 +344,7 @@ window.print();
 /* DELETE */
 function deleteCliente(){
 
-const i=lista.value;
+const i=document.getElementById("lista").value;
 if(i==="")return;
 
 if(!confirm("Eliminar cliente?"))return;
