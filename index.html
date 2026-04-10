@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Gaia Phone - Gestão de Clientes</title>
+
 <style>
 :root{
 --bg:#f2f4f7;
@@ -15,52 +16,48 @@
 html,body{height:100%;margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:#222}
 .container{max-width:980px;margin:24px auto;padding:20px}
 
-/* login */
+/* LOGIN */
 .login-wrap{max-width:420px;margin:80px auto;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 6px 20px rgba(5,20,40,0.08);text-align:center}
 .login-wrap img{width:120px;margin-bottom:14px}
 .login-wrap input{width:100%;padding:12px;border-radius:8px;border:1px solid #d6dbe3;margin:10px 0;font-size:15px}
 .login-wrap button{width:100%;padding:12px;border-radius:8px;border:none;background:var(--navy);color:white;font-weight:600;cursor:pointer}
 .login-wrap button:hover{background:var(--navy-dark)}
 
-/* app */
 .app{display:none}
+
 .header{display:flex;align-items:center;gap:16px;margin-bottom:14px}
 .header img{width:64px}
 .header h1{margin:0;font-size:20px;color:var(--navy)}
 
-/* grid */
 .grid{display:grid;grid-template-columns:1fr 360px;gap:20px}
+
 .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(5,20,40,0.06)}
 .card h2{margin:0 0 12px 0;font-size:16px;color:var(--navy)}
+
 .field{margin-bottom:8px}
-input[type="text"], input[type="tel"], select{width:100%;padding:10px;border-radius:8px;border:1px solid #d6dbe3;font-size:14px}
+input[type="text"],input[type="tel"],select{width:100%;padding:10px;border-radius:8px;border:1px solid #d6dbe3;font-size:14px}
+
 .row{display:flex;gap:8px;flex-wrap:wrap}
 button{padding:10px 12px;border-radius:8px;border:none;background:var(--navy);color:#fff;cursor:pointer;font-weight:600}
 button.secondary{background:#e6eef8;color:var(--navy);border:1px solid #cfe2ff}
 
-/* small */
 .small{font-size:13px;color:var(--muted)}
 
-/* print container */
 .print-container{display:none;max-width:680px;margin:18px auto;padding:18px;background:white;border-radius:10px;box-shadow:0 10px 30px rgba(5,20,40,0.08);text-align:center}
-.print-logo{width:90px;margin-bottom:8px}
-.print-container h2{margin:4px 0 10px 0;color:var(--navy)}
-.print-container p{margin:6px 0;font-size:15px}
 
-/* hide things in print */
 @media print{
 body *{visibility:hidden}
-.print-container, .print-container *{visibility:visible}
-.print-container{position:fixed;left:0;top:0;width:100%;height:auto;margin:0;padding:20px;box-shadow:none}
-.no-print{display:none !important}
+.print-container,.print-container {visibility:visible}
+.print-container{position:fixed;left:0;top:0;width:100%;margin:0;padding:20px;box-shadow:none}
+.no-print{display:none!important}
 }
 
-/* responsive */
-@media (max-width:900px){
+@media(max-width:900px){
 .grid{grid-template-columns:1fr}
 }
 </style>
 </head>
+
 <body>
 
 <!-- LOGIN -->
@@ -68,189 +65,123 @@ body *{visibility:hidden}
 <img src="logo.png" alt="Logo Gaia Phone">
 <h2>Gaia Phone — Acesso</h2>
 <p class="small">Introduza a passe para aceder ao sistema</p>
-<input id="pw" type="password" placeholder="Passe" />
+
+<input id="pw" type="password" placeholder="Passe"/>
 <button id="loginBtn">Entrar</button>
+
+<p class="small" style="margin-top:12px;">
+<a href="#" id="recoverEmail" style="color:#0d2340;text-decoration:none;">
+📧 Recuperar palavra-passe
+</a>
+</p>
 </div>
 
 <!-- APP -->
 <div class="container app" id="app">
 <div class="header">
-<img src="logo.png" alt="logo">
+<img src="logo.png">
 <div>
 <h1>Gaia Phone — Gestão de Clientes</h1>
-<div class="small">Rua José Rocha, 189 A — 4430-123 V.N. Gaia • 222 441 808 / 931 965 105 • gaiaphone@gmail.com</div>
+<div class="small">Rua José Rocha, 189 A — 4430-123 V.N. Gaia • 222 441 808 • gaiaphone@gmail.com</div>
 </div>
 </div>
 
 <div class="grid">
-<!-- Left -->
-<div class="card" id="leftCard">
-<h2>Adicionar / Editar Cliente</h2>
 
-<div class="field"><input id="nome" type="text" placeholder="Nome"></div>
-<div class="field"><input id="telefone" type="tel" placeholder="Telefone"></div>
-<div class="field"><input id="imei" type="text" placeholder="IMEI"></div>
-<div class="field"><input id="marca" type="text" placeholder="Marca"></div>
-<div class="field"><input id="modelo" type="text" placeholder="Modelo"></div>
-<div class="field"><input id="avaria" type="text" placeholder="Avaria"></div>
+<div class="card">
+<h2>Adicionar Cliente</h2>
+<input id="nome" type="text" placeholder="Nome">
+<input id="telefone" type="tel" placeholder="Telefone">
+<input id="imei" type="text" placeholder="IMEI">
+<input id="marca" type="text" placeholder="Marca">
+<input id="modelo" type="text" placeholder="Modelo">
+<input id="avaria" type="text" placeholder="Avaria">
 
-<div class="row" style="margin-top:12px">
+<div class="row" style="margin-top:10px">
 <button id="addBtn">Adicionar Cliente</button>
-<button id="saveBtn" class="secondary">Guardar Edição</button>
-<button id="clearBtn" class="secondary">Limpar Campos</button>
 </div>
 </div>
 
-<!-- Right -->
 <div class="card">
 <h2>Clientes</h2>
-<div class="field"><input id="pesquisa" type="text" placeholder="Procurar por Telefone / IMEI / Nome"></div>
-<div class="field"><select id="clienteSelect" size="8" style="height:220px"></select></div>
-<div class="row">
-<button id="editBtn" class="secondary">Editar Cliente</button>
-<button id="showPrintBtn">Abrir Ficha</button>
-</div>
-<div class="field" style="margin-top:10px">
-<div class="small">Status (seleciona antes de imprimir):</div>
-<label><input type="radio" name="status" value="Reparado"> Reparado</label>
-<label><input type="radio" name="status" value="Sem reparação">Sem reparação</label>
-</div>
-<div style="margin-top:10px">
-<button id="printBtn" class="no-print">🖨️ Imprimir Ficha</button>
-</div>
-</div>
+<input id="pesquisa" type="text" placeholder="Pesquisar">
+<select id="clienteSelect" size="8" style="height:220px"></select>
 </div>
 
-<!-- Ficha Impressão -->
-<div class="print-container" id="printContainer">
-<img class="print-logo" src="logo.png" alt="Logo">
-<h2>Reparações de Telemóveis</h2>
-<div class="small">Rua José Rocha, 189 A — 4430-123 V.N. Gaia</div>
-<div class="small">222 441 808 • 931 965 105 • gaiaphone@gmail.com</div>
-<hr style="margin:12px 0">
-
-<p><strong>Nome:</strong> <span id="pNome"></span></p>
-<p><strong>Telefone:</strong> <span id="pTelefone"></span></p>
-<p><strong>IMEI:</strong> <span id="pIMEI"></span></p>
-<p><strong>Marca:</strong> <span id="pMarca"></span></p>
-<p><strong>Modelo:</strong> <span id="pModelo"></span></p>
-<p><strong>Avaria:</strong> <span id="pAvaria"></span></p>
-<p><strong>Data de Registo:</strong> <span id="pData"></span></p>
-<p><strong>Status:</strong> <span id="pStatus"></span></p>
 </div>
 </div>
 
 <script>
-/* LOGIN */
-const PASSWORD = "12345";
-const loginWrap = document.getElementById('loginWrap');
-const app = document.getElementById('app');
-document.getElementById('loginBtn').addEventListener('click', tryLogin);
-document.getElementById('pw').addEventListener('keyup', e => { if(e.key==="Enter") tryLogin(); });
+
+/ LOGIN /
+const PASSWORD="12345";
+const loginWrap=document.getElementById("loginWrap");
+const app=document.getElementById("app");
+
+document.getElementById("loginBtn").onclick=tryLogin;
+document.getElementById("pw").addEventListener("keyup",e=>{if(e.key==="Enter")tryLogin();});
+
 function tryLogin(){
-const pw = document.getElementById('pw').value;
-if(pw===PASSWORD){ loginWrap.style.display='none'; app.style.display='block'; carregar(); }
-else alert('Senha incorreta');
+const pw=document.getElementById("pw").value;
+if(pw===PASSWORD){
+loginWrap.style.display="none";
+app.style.display="block";
+carregar();
+}else{
+alert("Senha incorreta");
+}
 }
 
-/* VARS */
-let clientes = [];
-let editIndex = null;
+/ CLIENTES /
+let clientes=[];
+const select=document.getElementById("clienteSelect");
 
-/* ELEMENTOS */
-const select = document.getElementById('clienteSelect');
-const pesquisa = document.getElementById('pesquisa');
-
-/* EVENTOS */
-document.getElementById('addBtn').onclick = addCliente;
-document.getElementById('saveBtn').onclick = saveEdit;
-document.getElementById('editBtn').onclick = editarCliente;
-document.getElementById('showPrintBtn').onclick = abrirFicha;
-document.getElementById('printBtn').onclick = imprimirFicha;
-document.getElementById('clearBtn').onclick = limparCampos;
-pesquisa.oninput = filtrar;
-
-/* FUNÇÕES */
-function lerCampos(){
-return {
-nome: nome.value.trim(),
-telefone: telefone.value.trim(),
-imei: imei.value.trim(),
-marca: marca.value.trim(),
-modelo: modelo.value.trim(),
-avaria: avaria.value.trim(),
-data: new Date().toLocaleDateString()
+document.getElementById("addBtn").onclick=function(){
+const c={
+nome:nome.value,
+telefone:telefone.value,
+imei:imei.value,
+marca:marca.value,
+modelo:modelo.value,
+avaria:avaria.value
 };
-}
-function preencherCampos(c){
-nome.value=c.nome||'';telefone.value=c.telefone||'';imei.value=c.imei||'';
-marca.value=c.marca||'';modelo.value=c.modelo||'';avaria.value=c.avaria||'';
-}
-function limparCampos(){
-nome.value=telefone.value=imei.value=marca.value=modelo.value=avaria.value='';
-editIndex=null;
-}
+clientes.push(c);
+localStorage.setItem("clientes",JSON.stringify(clientes));
+carregar();
+};
 
 function carregar(){
-clientes = JSON.parse(localStorage.getItem('clientes')||'[]');
-atualizarSelect();
-}
-function guardar(){
-localStorage.setItem('clientes', JSON.stringify(clientes));
-}
-
-function atualizarSelect(list){
-select.innerHTML='';
-const arr=list||clientes;
-if(arr.length===0){const o=document.createElement('option');o.text='-- Sem clientes --';select.add(o);return;}
-arr.forEach((c,i)=>{const opt=document.createElement('option');opt.value=i;opt.text=`${c.nome} — ${c.telefone}`;select.add(opt);});
-}
-function filtrar(){
-const t=pesquisa.value.toLowerCase();
-atualizarSelect(clientes.filter(c=>c.nome.toLowerCase().includes(t)||c.telefone.includes(t)||c.imei.includes(t)));
+clientes=JSON.parse(localStorage.getItem("clientes")||"[]");
+select.innerHTML="";
+clientes.forEach((c,i)=>{
+const o=document.createElement("option");
+o.text=c.nome+" — "+c.telefone;
+select.add(o);
+});
 }
 
-function addCliente(){
-const c=lerCampos();if(!c.nome){alert('Nome obrigatório');return;}
-clientes.push(c);guardar();atualizarSelect();limparCampos();
-}
+/ =========================
+RECUPERAÇÃO POR EMAIL
+========================= */
 
-function editarCliente(){
-const i=select.value;if(i===''){alert('Seleciona um cliente');return;}
-editIndex=i;preencherCampos(clientes[i]);
-document.getElementById('leftCard').scrollIntoView({behavior:'smooth'});
-}
+document.getElementById("recoverEmail").onclick=function(){
 
-function saveEdit(){
-if(editIndex===null){alert('Nenhum cliente em edição');return;}
-const c=lerCampos();
-clientes[editIndex]={...clientes[editIndex],...c};
-guardar();atualizarSelect();limparCampos();alert('Guardado!');
-}
+const assunto="Recuperação de Password - Gaia Phone";
 
-function abrirFicha(){
-const i=select.value;if(i===''){alert('Seleciona um cliente');return;}
-const c=clientes[i];
-document.getElementById('pNome').textContent=c.nome;
-document.getElementById('pTelefone').textContent=c.telefone;
-document.getElementById('pIMEI').textContent=c.imei;
-document.getElementById('pMarca').textContent=c.marca;
-document.getElementById('pModelo').textContent=c.modelo;
-document.getElementById('pAvaria').textContent=c.avaria;
-document.getElementById('pData').textContent=c.data;
+const mensagem=
+"Olá,%0D%0A%0D%0A"+
+"Esqueci-me da palavra-passe do sistema Gaia Phone.%0D%0A"+
+"Peço definição de nova password.%0D%0A%0D%0A"+
+"Pedido feito em: "+new Date().toLocaleString();
 
-// obter status escolhido e mostrar na ficha
-const statusSel=document.querySelector('input[name="status"]:checked');
-const status=statusSel?statusSel.value:"Não definido";
-document.getElementById('pStatus').textContent=status;
+window.location.href=
+"mailto:gaiaphone@gmail.com?subject="+
+encodeURIComponent(assunto)+
+"&body="+mensagem;
 
-document.getElementById('printContainer').style.display='block';
-document.getElementById('printContainer').scrollIntoView({behavior:'smooth'});
-}
+};
 
-function imprimirFicha(){
-window.print();
-}
 </script>
+
 </body>
 </html>
