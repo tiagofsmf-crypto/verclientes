@@ -89,28 +89,27 @@ border-radius:10px;
 box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
 
-/* IMPRESSÃO CORRIGIDA */
+/* IMPRESSÃO FIX DEFINITIVO */
 @media print {
 
-body * {
-visibility: hidden !important;
+body *{
+visibility:hidden !important;
 }
 
-#printArea {
-display: block !important;
-visibility: visible !important;
-position: absolute;
-left: 0;
-top: 0;
-width: 100%;
-padding: 20px;
+#printArea{
+display:block !important;
+visibility:visible !important;
+position:absolute;
+left:0;
+top:0;
+width:100%;
+padding:20px;
 }
 
-#printArea * {
-visibility: visible !important;
+#printArea *{
+visibility:visible !important;
 }
 }
-
 </style>
 </head>
 
@@ -175,7 +174,7 @@ visibility: visible !important;
 </div>
 </div>
 
-<!-- FICHA IMPRESSÃO -->
+<!-- FICHA -->
 <div class="print" id="printArea">
 
 <img src="logo.png" style="width:100px;margin-bottom:10px">
@@ -199,7 +198,7 @@ Rua José Rocha, 189 A — V.N. Gaia<br>
 
 </div>
 
-<!-- FIREBASE LOGIN -->
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {
@@ -221,7 +220,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 window.tryLogin = function(){
-
 const email = document.getElementById("email").value;
 const password = document.getElementById("password").value;
 
@@ -235,7 +233,6 @@ loadClientes();
 };
 
 window.recoverPassword = function(){
-
 const email = document.getElementById("email").value;
 
 if(!email){
@@ -247,10 +244,9 @@ sendPasswordResetEmail(auth,email)
 .then(()=>alert("Email enviado"))
 .catch(()=>alert("Erro"));
 };
-
 </script>
 
-<!-- SISTEMA CLIENTES -->
+<!-- SISTEMA -->
 <script>
 
 let clientes=[];
@@ -277,7 +273,9 @@ render();
 
 /* RENDER */
 function render(){
+const lista=document.getElementById("lista");
 lista.innerHTML="";
+
 clientes.forEach((c,i)=>{
 let opt=document.createElement("option");
 opt.value=i;
@@ -325,15 +323,19 @@ if(i==="")return;
 const c=clientes[i];
 const st=document.querySelector('input[name="status"]:checked');
 
-document.getElementById("pNome").textContent=c.nome;
-document.getElementById("pTelefone").textContent=c.telefone;
-document.getElementById("pIMEI").textContent=c.imei;
-document.getElementById("pMarca").textContent=c.marca;
-document.getElementById("pModelo").textContent=c.modelo;
-document.getElementById("pAvaria").textContent=c.avaria;
+document.getElementById("pNome").textContent=c.nome||"";
+document.getElementById("pTelefone").textContent=c.telefone||"";
+document.getElementById("pIMEI").textContent=c.imei||"";
+document.getElementById("pMarca").textContent=c.marca||"";
+document.getElementById("pModelo").textContent=c.modelo||"";
+document.getElementById("pAvaria").textContent=c.avaria||"";
 document.getElementById("pStatus").textContent=st?st.value:"-";
 
 document.getElementById("printArea").style.display="block";
+
+setTimeout(()=>{
+document.getElementById("printArea").scrollIntoView({behavior:"smooth"});
+},50);
 }
 
 /* PRINT */
