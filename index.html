@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Gaia Phone PRO</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gaia Phone</title>
 
 <style>
 body{margin:0;font-family:Arial;background:#f2f4f7}
 
 .login{
 max-width:400px;margin:80px auto;background:#fff;padding:25px;
-border-radius:10px;text-align:center;box-shadow:0 5px 20px rgba(0,0,0,0.1)
+border-radius:10px;text-align:center;
 }
 
 input,button,select{
-width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc
+width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc;
 }
 
 button{background:#0d2340;color:#fff;border:none;cursor:pointer}
@@ -26,7 +26,20 @@ button{background:#0d2340;color:#fff;border:none;cursor:pointer}
 
 .card{background:#fff;padding:15px;border-radius:10px}
 
-.small{font-size:12px;color:#666}
+.print{
+display:none;
+max-width:700px;
+margin:auto;
+padding:20px;
+background:#fff;
+text-align:center;
+}
+
+@media print{
+body *{visibility:hidden}
+.print, .print *{visibility:visible}
+.print{position:absolute;top:0;left:0;width:100%}
+}
 </style>
 </head>
 
@@ -34,27 +47,18 @@ button{background:#0d2340;color:#fff;border:none;cursor:pointer}
 
 <!-- LOGIN -->
 <div class="login" id="loginBox">
-<h2>Gaia Phone PRO</h2>
-
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-
+<h2>Gaia Phone</h2>
+<input id="pw" type="password" placeholder="Password">
 <button onclick="login()">Entrar</button>
-
-<p onclick="recover()" style="cursor:pointer;color:#0d2340">
-📧 Recuperar password
-</p>
 </div>
 
 <!-- APP -->
 <div class="container app" id="app">
 
-<h2>Gestão de Clientes PRO</h2>
-
 <div class="grid">
 
 <div class="card">
-<h3>Adicionar Cliente</h3>
+<h3>Cliente</h3>
 
 <input id="nome" placeholder="Nome">
 <input id="telefone" placeholder="Telefone">
@@ -63,85 +67,80 @@ button{background:#0d2340;color:#fff;border:none;cursor:pointer}
 <input id="modelo" placeholder="Modelo">
 <input id="avaria" placeholder="Avaria">
 
-<button onclick="addCliente()">Adicionar</button>
+<button onclick="add()">Adicionar</button>
 </div>
 
 <div class="card">
-<h3>Clientes</h3>
+<h3>Lista</h3>
 
 <select id="lista" size="10"></select>
 
-<button onclick="abrirFicha()">Abrir Ficha</button>
-<button onclick="imprimir()">Imprimir</button>
+<button onclick="abrir()">Abrir Ficha</button>
+<button onclick="printFicha()">Imprimir</button>
 
-<div style="margin-top:10px">
+<div>
 <label><input type="radio" name="status" value="Reparado"> Reparado</label>
 <label><input type="radio" name="status" value="Sem reparação"> Sem reparação</label>
 </div>
-</div>
 
 </div>
 
 </div>
+</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import {
-getAuth,
-signInWithEmailAndPassword,
-sendPasswordResetEmail
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+<!-- FICHA IMPRESSÃO -->
+<div class="print" id="printArea">
+<h2>Reparações Gaia Phone</h2>
 
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+<p><b>Nome:</b> <span id="pNome"></span></p>
+<p><b>Telefone:</b> <span id="pTel"></span></p>
+<p><b>IMEI:</b> <span id="pImei"></span></p>
+<p><b>Marca:</b> <span id="pMarca"></span></p>
+<p><b>Modelo:</b> <span id="pModelo"></span></p>
+<p><b>Avaria:</b> <span id="pAvaria"></span></p>
+<p><b>Status:</b> <span id="pStatus"></span></p>
+</div>
 
-/* FIREBASE */
-const firebaseConfig = {
-apiKey: "AIzaSyD9emhCy-3-xZIvlq8B3zHNg_JjIckfyCk",
-authDomain: "gaiaphone-4a260.firebaseapp.com",
-projectId: "gaiaphone-4a260",
-storageBucket: "gaiaphone-4a260.firebasestorage.app",
-messagingSenderId: "867023294236",
-appId: "1:867023294236:web:e0b08ffdfa19aa4c2cb4d9"
-};
+<script>
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+const PASS = "12345";
 let clientes = [];
 
-/* LOGIN */
-window.login = function(){
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
+function login(){
+if(pw.value === PASS){
+loginBox.style.display="none";
+app.style.display="block";
+load();
+}
+else alert("Errado");
+}
 
-signInWithEmailAndPassword(auth,email,password)
-.then(()=>{
-document.getElementById("loginBox").style.display="none";
-document.getElementById("app").style.display="block";
-loadClientes();
-})
-.catch(()=>alert("Erro login"));
-};
+/* GUARDAR */
+function save(){
+localStorage.setItem("clientes",JSON.stringify(clientes));
+}
 
-/* RECOVER */
-window.recover = function(){
-const email = document.getElementById("email").value;
+/* CARREGAR */
+function load(){
+clientes = JSON.parse(localStorage.getItem("clientes")||"[]");
+render();
+}
 
-sendPasswordResetEmail(auth,email)
-.then(()=>alert("Email enviado"))
-.catch(()=>alert("Erro"));
-};
+/* RENDER RÁPIDO */
+function render(){
+lista.innerHTML="";
+clientes.forEach((c,i)=>{
+let o=document.createElement("option");
+o.value=i;
+o.text=c.nome+" - "+c.telefone;
+lista.add(o);
+});
+}
 
-/* ADD CLIENTE (CLOUD) */
-window.addCliente = async function(){
+/* ADD CLIENTE */
+function add(){
 
-const c = {
+const c={
 nome:nome.value,
 telefone:telefone.value,
 imei:imei.value,
@@ -150,60 +149,35 @@ modelo:modelo.value,
 avaria:avaria.value
 };
 
-await addDoc(collection(db,"clientes"),c);
-
-loadClientes();
-};
-
-/* LOAD CLIENTES */
-window.loadClientes = async function(){
-
-const snap = await getDocs(collection(db,"clientes"));
-
-clientes = [];
-
-snap.forEach(doc=>{
-clientes.push(doc.data());
-});
-
+clientes.push(c);
+save();
 render();
-};
-
-function render(){
-const sel = document.getElementById("lista");
-sel.innerHTML="";
-
-clientes.forEach((c,i)=>{
-let opt=document.createElement("option");
-opt.text = c.nome+" - "+c.telefone;
-opt.value=i;
-sel.add(opt);
-});
 }
 
-/* FICHA */
-window.abrirFicha = function(){
+/* ABRIR FICHA BONITA */
+function abrir(){
 
-const i = lista.value;
-const c = clientes[i];
+const i=lista.value;
+if(i==="") return;
 
-const status = document.querySelector('input[name="status"]:checked');
+const c=clientes[i];
+const status=document.querySelector('input[name="status"]:checked');
 
-alert(
-`Nome: ${c.nome}
-Telefone: ${c.telefone}
-IMEI: ${c.imei}
-Marca: ${c.marca}
-Modelo: ${c.modelo}
-Avaria: ${c.avaria}
-Status: ${status?status.value:"-"}`
-);
-};
+pNome.innerText=c.nome;
+pTel.innerText=c.telefone;
+pImei.innerText=c.imei;
+pMarca.innerText=c.marca;
+pModelo.innerText=c.modelo;
+pAvaria.innerText=c.avaria;
+pStatus.innerText=status?status.value:"-";
+
+printArea.style.display="block";
+}
 
 /* PRINT */
-window.imprimir = function(){
+function printFicha(){
 window.print();
-};
+}
 
 </script>
 
