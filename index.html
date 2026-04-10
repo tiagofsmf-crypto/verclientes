@@ -89,7 +89,19 @@ border-radius:10px;
 box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
 
-/* IMPRESSÃO FIX DEFINITIVO */
+/* 🔥 FIX VISUAL (RESOLVE TEXTO INVISÍVEL) */
+#printArea p{
+color:#000 !important;
+font-size:16px;
+margin:6px 0;
+}
+
+#printArea span{
+color:#000 !important;
+font-weight:500;
+}
+
+/* IMPRESSÃO DEFINITIVA */
 @media print {
 
 body *{
@@ -108,6 +120,7 @@ padding:20px;
 
 #printArea *{
 visibility:visible !important;
+color:#000 !important;
 }
 }
 </style>
@@ -284,24 +297,22 @@ lista.add(opt);
 });
 }
 
-/* ADD CORRIGIDO */
+/* ADD */
 function addCliente(){
 
-const nome = document.getElementById("nome").value.trim();
-const telefone = document.getElementById("telefone").value.trim();
-const imei = document.getElementById("imei").value.trim();
-const marca = document.getElementById("marca").value.trim();
-const modelo = document.getElementById("modelo").value.trim();
-const avaria = document.getElementById("avaria").value.trim();
+const nome=document.getElementById("nome").value.trim();
+const telefone=document.getElementById("telefone").value.trim();
+const imei=document.getElementById("imei").value.trim();
+const marca=document.getElementById("marca").value.trim();
+const modelo=document.getElementById("modelo").value.trim();
+const avaria=document.getElementById("avaria").value.trim();
 
 if(!nome){
 alert("Nome obrigatório");
 return;
 }
 
-clientes.push({
-nome, telefone, imei, marca, modelo, avaria
-});
+clientes.push({nome,telefone,imei,marca,modelo,avaria});
 
 save();
 render();
@@ -315,26 +326,31 @@ document.getElementById("modelo").value="";
 document.getElementById("avaria").value="";
 }
 
-/* FICHA CORRIGIDA */
+/* FICHA FINAL CORRIGIDA */
 function abrirFicha(){
 
-const i=document.getElementById("lista").value;
-if(i==="")return;
+const i=document.getElementById("lista").selectedIndex;
+if(i===-1 || !clientes[i]){
+alert("Seleciona um cliente");
+return;
+}
 
 const c=clientes[i];
 const st=document.querySelector('input[name="status"]:checked');
 
-if(!c)return;
-
-document.getElementById("pNome").textContent=c.nome||"";
-document.getElementById("pTelefone").textContent=c.telefone||"";
-document.getElementById("pIMEI").textContent=c.imei||"";
-document.getElementById("pMarca").textContent=c.marca||"";
-document.getElementById("pModelo").textContent=c.modelo||"";
-document.getElementById("pAvaria").textContent=c.avaria||"";
-document.getElementById("pStatus").textContent=st?st.value:"-";
+document.getElementById("pNome").textContent = c.nome || "—";
+document.getElementById("pTelefone").textContent = c.telefone || "—";
+document.getElementById("pIMEI").textContent = c.imei || "—";
+document.getElementById("pMarca").textContent = c.marca || "—";
+document.getElementById("pModelo").textContent = c.modelo || "—";
+document.getElementById("pAvaria").textContent = c.avaria || "—";
+document.getElementById("pStatus").textContent = st ? st.value : "—";
 
 document.getElementById("printArea").style.display="block";
+
+setTimeout(()=>{
+document.getElementById("printArea").scrollIntoView({behavior:"smooth"});
+},50);
 }
 
 /* PRINT */
@@ -345,8 +361,8 @@ window.print();
 /* DELETE */
 function deleteCliente(){
 
-const i=document.getElementById("lista").value;
-if(i==="")return;
+const i=document.getElementById("lista").selectedIndex;
+if(i===-1)return;
 
 if(!confirm("Eliminar cliente?"))return;
 
