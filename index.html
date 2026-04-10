@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Gaia Phone - Gestão de Clientes</title>
 
 <style>
@@ -16,41 +16,27 @@
 html,body{height:100%;margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:#222}
 .container{max-width:980px;margin:24px auto;padding:20px}
 
-/* LOGIN */
+/* login */
 .login-wrap{max-width:420px;margin:80px auto;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 6px 20px rgba(5,20,40,0.08);text-align:center}
 .login-wrap img{width:120px;margin-bottom:14px}
 .login-wrap input{width:100%;padding:12px;border-radius:8px;border:1px solid #d6dbe3;margin:10px 0;font-size:15px}
 .login-wrap button{width:100%;padding:12px;border-radius:8px;border:none;background:var(--navy);color:white;font-weight:600;cursor:pointer}
 .login-wrap button:hover{background:var(--navy-dark)}
 
+/* app */
 .app{display:none}
-
 .header{display:flex;align-items:center;gap:16px;margin-bottom:14px}
 .header img{width:64px}
 .header h1{margin:0;font-size:20px;color:var(--navy)}
 
 .grid{display:grid;grid-template-columns:1fr 360px;gap:20px}
-
 .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(5,20,40,0.06)}
 .card h2{margin:0 0 12px 0;font-size:16px;color:var(--navy)}
-
-.field{margin-bottom:8px}
-input[type="text"],input[type="tel"],select{width:100%;padding:10px;border-radius:8px;border:1px solid #d6dbe3;font-size:14px}
-
-.row{display:flex;gap:8px;flex-wrap:wrap}
+input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #d6dbe3;font-size:14px}
+.row{display:flex;gap:8px}
 button{padding:10px 12px;border-radius:8px;border:none;background:var(--navy);color:#fff;cursor:pointer;font-weight:600}
-button.secondary{background:#e6eef8;color:var(--navy);border:1px solid #cfe2ff}
 
 .small{font-size:13px;color:var(--muted)}
-
-.print-container{display:none;max-width:680px;margin:18px auto;padding:18px;background:white;border-radius:10px;box-shadow:0 10px 30px rgba(5,20,40,0.08);text-align:center}
-
-@media print{
-body *{visibility:hidden}
-.print-container,.print-container {visibility:visible}
-.print-container{position:fixed;left:0;top:0;width:100%;margin:0;padding:20px;box-shadow:none}
-.no-print{display:none!important}
-}
 
 @media(max-width:900px){
 .grid{grid-template-columns:1fr}
@@ -62,27 +48,27 @@ body *{visibility:hidden}
 
 <!-- LOGIN -->
 <div class="login-wrap" id="loginWrap">
-<img src="logo.png" alt="Logo Gaia Phone">
+<img src="logo.png" alt="Logo">
 <h2>Gaia Phone — Acesso</h2>
-<p class="small">Introduza a passe para aceder ao sistema</p>
+<p class="small">Introduza o email para entrar</p>
 
-<input id="pw" type="password" placeholder="Passe"/>
-<button id="loginBtn">Entrar</button>
+<input id="pw" type="text" placeholder="Email da loja" />
+<button onclick="tryLogin()">Entrar</button>
 
-<p class="small" style="margin-top:12px;">
-<a href="#" id="recoverEmail" style="color:#0d2340;text-decoration:none;">
+<p class="small" onclick="recoverPassword()" style="cursor:pointer;color:#0d2340;margin-top:10px">
 📧 Recuperar palavra-passe
-</a>
 </p>
+
 </div>
 
 <!-- APP -->
 <div class="container app" id="app">
+
 <div class="header">
 <img src="logo.png">
 <div>
 <h1>Gaia Phone — Gestão de Clientes</h1>
-<div class="small">Rua José Rocha, 189 A — 4430-123 V.N. Gaia • 222 441 808 • gaiaphone@gmail.com</div>
+<div class="small">Sistema interno da loja</div>
 </div>
 </div>
 
@@ -90,95 +76,88 @@ body *{visibility:hidden}
 
 <div class="card">
 <h2>Adicionar Cliente</h2>
-<input id="nome" type="text" placeholder="Nome">
-<input id="telefone" type="tel" placeholder="Telefone">
-<input id="imei" type="text" placeholder="IMEI">
-<input id="marca" type="text" placeholder="Marca">
-<input id="modelo" type="text" placeholder="Modelo">
-<input id="avaria" type="text" placeholder="Avaria">
 
-<div class="row" style="margin-top:10px">
-<button id="addBtn">Adicionar Cliente</button>
-</div>
+<input id="nome" placeholder="Nome">
+<input id="telefone" placeholder="Telefone">
+<input id="imei" placeholder="IMEI">
+<input id="marca" placeholder="Marca">
+<input id="modelo" placeholder="Modelo">
+<input id="avaria" placeholder="Avaria">
+
+<button onclick="addCliente()" style="margin-top:10px">Adicionar</button>
 </div>
 
 <div class="card">
 <h2>Clientes</h2>
-<input id="pesquisa" type="text" placeholder="Pesquisar">
-<select id="clienteSelect" size="8" style="height:220px"></select>
+<select id="clienteSelect" size="8"></select>
 </div>
 
 </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import {
+getAuth,
+signInWithEmailAndPassword,
+sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-/ LOGIN /
-const PASSWORD="12345";
-const loginWrap=document.getElementById("loginWrap");
-const app=document.getElementById("app");
-
-document.getElementById("loginBtn").onclick=tryLogin;
-document.getElementById("pw").addEventListener("keyup",e=>{if(e.key==="Enter")tryLogin();});
-
-function tryLogin(){
-const pw=document.getElementById("pw").value;
-if(pw===PASSWORD){
-loginWrap.style.display="none";
-app.style.display="block";
-carregar();
-}else{
-alert("Senha incorreta");
-}
-}
-
-/ CLIENTES /
-let clientes=[];
-const select=document.getElementById("clienteSelect");
-
-document.getElementById("addBtn").onclick=function(){
-const c={
-nome:nome.value,
-telefone:telefone.value,
-imei:imei.value,
-marca:marca.value,
-modelo:modelo.value,
-avaria:avaria.value
+/* FIREBASE */
+const firebaseConfig = {
+apiKey: "AIzaSyD9emhCy-3-xZIvlq8B3zHNg_JjIckfyCk",
+authDomain: "gaiaphone-4a260.firebaseapp.com",
+projectId: "gaiaphone-4a260",
+storageBucket: "gaiaphone-4a260.firebasestorage.app",
+messagingSenderId: "867023294236",
+appId: "1:867023294236:web:e0b08ffdfa19aa4c2cb4d9",
+measurementId: "G-RGP6KMC6WT"
 };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* LOGIN */
+window.tryLogin = function(){
+const email = document.getElementById("pw").value;
+
+signInWithEmailAndPassword(auth, email, "123456")
+.then(() => {
+document.getElementById("loginWrap").style.display = "none";
+document.getElementById("app").style.display = "block";
+})
+.catch(() => alert("Login errado"));
+};
+
+/* RECUPERAÇÃO */
+window.recoverPassword = function(){
+const email = document.getElementById("pw").value;
+
+sendPasswordResetEmail(auth, email)
+.then(() => alert("Email enviado para recuperação"))
+.catch(() => alert("Erro ao enviar email"));
+};
+
+/* CLIENTES (igual ao teu sistema simples) */
+let clientes = [];
+
+window.addCliente = function(){
+const c = {
+nome: nome.value,
+telefone: telefone.value,
+imei: imei.value,
+marca: marca.value,
+modelo: modelo.value,
+avaria: avaria.value
+};
+
 clientes.push(c);
-localStorage.setItem("clientes",JSON.stringify(clientes));
-carregar();
-};
+localStorage.setItem("clientes", JSON.stringify(clientes));
 
-function carregar(){
-clientes=JSON.parse(localStorage.getItem("clientes")||"[]");
-select.innerHTML="";
-clientes.forEach((c,i)=>{
-const o=document.createElement("option");
-o.text=c.nome+" — "+c.telefone;
-select.add(o);
-});
-}
-
-/ =========================
-RECUPERAÇÃO POR EMAIL
-========================= */
-
-document.getElementById("recoverEmail").onclick=function(){
-
-const assunto="Recuperação de Password - Gaia Phone";
-
-const mensagem=
-"Olá,%0D%0A%0D%0A"+
-"Esqueci-me da palavra-passe do sistema Gaia Phone.%0D%0A"+
-"Peço definição de nova password.%0D%0A%0D%0A"+
-"Pedido feito em: "+new Date().toLocaleString();
-
-window.location.href=
-"mailto:gaiaphone@gmail.com?subject="+
-encodeURIComponent(assunto)+
-"&body="+mensagem;
-
+const sel = document.getElementById("clienteSelect");
+const opt = document.createElement("option");
+opt.text = c.nome + " - " + c.telefone;
+sel.add(opt);
 };
 
 </script>
