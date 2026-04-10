@@ -284,24 +284,25 @@ lista.add(opt);
 });
 }
 
-/* ADD */
+/* ADD CORRIGIDO */
 function addCliente(){
 
-const c={
-nome:document.getElementById("nome").value,
-telefone:document.getElementById("telefone").value,
-imei:document.getElementById("imei").value,
-marca:document.getElementById("marca").value,
-modelo:document.getElementById("modelo").value,
-avaria:document.getElementById("avaria").value
-};
+const nome = document.getElementById("nome").value.trim();
+const telefone = document.getElementById("telefone").value.trim();
+const imei = document.getElementById("imei").value.trim();
+const marca = document.getElementById("marca").value.trim();
+const modelo = document.getElementById("modelo").value.trim();
+const avaria = document.getElementById("avaria").value.trim();
 
-if(!c.nome){
+if(!nome){
 alert("Nome obrigatório");
 return;
 }
 
-clientes.push(c);
+clientes.push({
+nome, telefone, imei, marca, modelo, avaria
+});
+
 save();
 render();
 
@@ -314,7 +315,7 @@ document.getElementById("modelo").value="";
 document.getElementById("avaria").value="";
 }
 
-/* FICHA */
+/* FICHA CORRIGIDA */
 function abrirFicha(){
 
 const i=document.getElementById("lista").value;
@@ -322,6 +323,8 @@ if(i==="")return;
 
 const c=clientes[i];
 const st=document.querySelector('input[name="status"]:checked');
+
+if(!c)return;
 
 document.getElementById("pNome").textContent=c.nome||"";
 document.getElementById("pTelefone").textContent=c.telefone||"";
@@ -332,10 +335,6 @@ document.getElementById("pAvaria").textContent=c.avaria||"";
 document.getElementById("pStatus").textContent=st?st.value:"-";
 
 document.getElementById("printArea").style.display="block";
-
-setTimeout(()=>{
-document.getElementById("printArea").scrollIntoView({behavior:"smooth"});
-},50);
 }
 
 /* PRINT */
