@@ -3,45 +3,28 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Gaia Phone - Gestão de Clientes</title>
+<title>Gaia Phone PRO</title>
 
 <style>
-:root{
---bg:#f2f4f7;
---card:#ffffff;
---navy:#0d2340;
---navy-dark:#07162a;
---muted:#666;
-}
-html,body{height:100%;margin:0;font-family:Arial;background:var(--bg);color:#222}
+body{margin:0;font-family:Arial;background:#f2f4f7}
 
-.login-wrap{
-max-width:420px;margin:80px auto;background:#fff;padding:28px;
-border-radius:10px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,0.1);
+.login{
+max-width:400px;margin:80px auto;background:#fff;padding:25px;
+border-radius:10px;text-align:center;box-shadow:0 5px 20px rgba(0,0,0,0.1)
 }
-.login-wrap input{
-width:100%;padding:12px;margin:10px 0;border-radius:8px;border:1px solid #ccc;
+
+input,button,select{
+width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc
 }
-.login-wrap button{
-width:100%;padding:12px;border:none;background:var(--navy);color:#fff;
-border-radius:8px;cursor:pointer;
-}
+
+button{background:#0d2340;color:#fff;border:none;cursor:pointer}
 
 .app{display:none}
-.container{max-width:980px;margin:auto;padding:20px}
+.container{max-width:1000px;margin:auto;padding:20px}
 
-.header{display:flex;gap:10px;align-items:center}
-.header img{width:60px}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 
 .card{background:#fff;padding:15px;border-radius:10px}
-
-input,select{
-width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc;
-}
-
-button{padding:10px;border:none;border-radius:8px;background:var(--navy);color:#fff;cursor:pointer}
 
 .small{font-size:12px;color:#666}
 </style>
@@ -50,25 +33,23 @@ button{padding:10px;border:none;border-radius:8px;background:var(--navy);color:#
 <body>
 
 <!-- LOGIN -->
-<div class="login-wrap" id="loginWrap">
-<h2>Gaia Phone</h2>
+<div class="login" id="loginBox">
+<h2>Gaia Phone PRO</h2>
 
-<input id="pw" placeholder="Email da loja">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
 
-<button onclick="tryLogin()">Entrar</button>
+<button onclick="login()">Entrar</button>
 
-<p class="small" onclick="recoverPassword()" style="cursor:pointer;color:#0d2340">
-📧 Recuperar palavra-passe
+<p onclick="recover()" style="cursor:pointer;color:#0d2340">
+📧 Recuperar password
 </p>
 </div>
 
 <!-- APP -->
 <div class="container app" id="app">
 
-<div class="header">
-<img src="logo.png">
-<h2>Gestão de Clientes</h2>
-</div>
+<h2>Gestão de Clientes PRO</h2>
 
 <div class="grid">
 
@@ -88,18 +69,15 @@ button{padding:10px;border:none;border-radius:8px;background:var(--navy);color:#
 <div class="card">
 <h3>Clientes</h3>
 
-<select id="clienteSelect" size="10"></select>
+<select id="lista" size="10"></select>
 
-<div style="margin-top:10px">
 <button onclick="abrirFicha()">Abrir Ficha</button>
-<button onclick="imprimirFicha()">Imprimir</button>
-</div>
+<button onclick="imprimir()">Imprimir</button>
 
 <div style="margin-top:10px">
 <label><input type="radio" name="status" value="Reparado"> Reparado</label>
 <label><input type="radio" name="status" value="Sem reparação"> Sem reparação</label>
 </div>
-
 </div>
 
 </div>
@@ -114,6 +92,13 @@ signInWithEmailAndPassword,
 sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
 /* FIREBASE */
 const firebaseConfig = {
 apiKey: "AIzaSyD9emhCy-3-xZIvlq8B3zHNg_JjIckfyCk",
@@ -124,56 +109,38 @@ messagingSenderId: "867023294236",
 appId: "1:867023294236:web:e0b08ffdfa19aa4c2cb4d9"
 };
 
-const appFirebase = initializeApp(firebaseConfig);
-const auth = getAuth(appFirebase);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-/* LOGIN */
-window.tryLogin = function () {
-const email = document.getElementById("pw").value;
-const password = "123456";
-
-signInWithEmailAndPassword(auth, email, password)
-.then(() => {
-document.getElementById("loginWrap").style.display = "none";
-document.getElementById("app").style.display = "block";
-loadClientes();
-})
-.catch(() => alert("Login errado"));
-};
-
-/* RECUPERAÇÃO */
-window.recoverPassword = function () {
-const email = document.getElementById("pw").value;
-
-sendPasswordResetEmail(auth, email)
-.then(() => alert("Email enviado"))
-.catch(() => alert("Erro ao enviar"));
-};
-
-/* CLIENTES */
 let clientes = [];
 
-function save(){
-localStorage.setItem("clientes", JSON.stringify(clientes));
-}
+/* LOGIN */
+window.login = function(){
+const email = document.getElementById("email").value;
+const password = document.getElementById("password").value;
 
-function loadClientes(){
-clientes = JSON.parse(localStorage.getItem("clientes") || "[]");
-render();
-}
+signInWithEmailAndPassword(auth,email,password)
+.then(()=>{
+document.getElementById("loginBox").style.display="none";
+document.getElementById("app").style.display="block";
+loadClientes();
+})
+.catch(()=>alert("Erro login"));
+};
 
-function render(){
-const sel = document.getElementById("clienteSelect");
-sel.innerHTML = "";
-clientes.forEach((c,i)=>{
-let opt = document.createElement("option");
-opt.value = i;
-opt.text = c.nome + " - " + c.telefone;
-sel.add(opt);
-});
-}
+/* RECOVER */
+window.recover = function(){
+const email = document.getElementById("email").value;
 
-window.addCliente = function(){
+sendPasswordResetEmail(auth,email)
+.then(()=>alert("Email enviado"))
+.catch(()=>alert("Erro"));
+};
+
+/* ADD CLIENTE (CLOUD) */
+window.addCliente = async function(){
+
 const c = {
 nome:nome.value,
 telefone:telefone.value,
@@ -183,17 +150,44 @@ modelo:modelo.value,
 avaria:avaria.value
 };
 
-clientes.push(c);
-save();
+await addDoc(collection(db,"clientes"),c);
+
+loadClientes();
+};
+
+/* LOAD CLIENTES */
+window.loadClientes = async function(){
+
+const snap = await getDocs(collection(db,"clientes"));
+
+clientes = [];
+
+snap.forEach(doc=>{
+clientes.push(doc.data());
+});
+
 render();
 };
 
+function render(){
+const sel = document.getElementById("lista");
+sel.innerHTML="";
+
+clientes.forEach((c,i)=>{
+let opt=document.createElement("option");
+opt.text = c.nome+" - "+c.telefone;
+opt.value=i;
+sel.add(opt);
+});
+}
+
 /* FICHA */
 window.abrirFicha = function(){
-const i = document.getElementById("clienteSelect").value;
-if(i==="") return alert("Seleciona cliente");
 
+const i = lista.value;
 const c = clientes[i];
+
+const status = document.querySelector('input[name="status"]:checked');
 
 alert(
 `Nome: ${c.nome}
@@ -201,12 +195,13 @@ Telefone: ${c.telefone}
 IMEI: ${c.imei}
 Marca: ${c.marca}
 Modelo: ${c.modelo}
-Avaria: ${c.avaria}`
+Avaria: ${c.avaria}
+Status: ${status?status.value:"-"}`
 );
 };
 
 /* PRINT */
-window.imprimirFicha = function(){
+window.imprimir = function(){
 window.print();
 };
 
