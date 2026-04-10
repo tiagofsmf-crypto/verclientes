@@ -1,42 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Gaia Phone - Gestão de Clientes</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gaia Phone</title>
 
 <style>
-:root{
---bg:#f2f4f7;
---card:#ffffff;
---navy:#0d2340;
---navy-dark:#07162a;
---muted:#666;
-}
-
-html,body{
-height:100%;
+body{
 margin:0;
 font-family:Arial;
-background:var(--bg);
-color:#222;
+background:#f2f4f7;
 }
 
-/* LOGIN (mantido bonito como antes) */
+/* LOGIN BONITO */
 .login-wrap{
 max-width:420px;
 margin:80px auto;
 background:#fff;
-padding:28px;
+padding:25px;
 border-radius:10px;
 text-align:center;
-box-shadow:0 6px 20px rgba(0,0,0,0.1);
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
 
 .login-wrap input{
 width:100%;
 padding:12px;
-margin:10px 0;
+margin:8px 0;
 border-radius:8px;
 border:1px solid #ccc;
 }
@@ -51,12 +41,22 @@ border-radius:8px;
 cursor:pointer;
 }
 
+/* APP */
 .app{display:none}
+.container{max-width:1000px;margin:auto;padding:20px}
 
-/* resto do teu sistema NÃO ALTERADO */
-.container{max-width:980px;margin:auto;padding:20px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.card{background:#fff;padding:15px;border-radius:10px}
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.card{
+background:#fff;
+padding:15px;
+border-radius:10px;
+box-shadow:0 3px 10px rgba(0,0,0,0.05);
+}
 
 input,select{
 width:100%;
@@ -77,34 +77,42 @@ cursor:pointer;
 
 .small{font-size:12px;color:#666}
 
+/* PRINT */
+.print{
+display:none;
+}
+@media print{
+body *{visibility:hidden}
+.print, .print *{visibility:visible}
+.print{position:absolute;top:0;left:0;width:100%}
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN (SÓ ALTERADO AQUI) -->
+<!-- LOGIN -->
 <div class="login-wrap" id="loginWrap">
-
 <img src="logo.png" style="width:120px;margin-bottom:10px">
 
 <h2>Gaia Phone</h2>
 
-<input id="email" type="text" placeholder="Email da loja">
+<input id="email" type="text" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
 
 <button onclick="tryLogin()">Entrar</button>
 
-<p class="small" onclick="recoverPassword()" style="cursor:pointer;color:#0d2340;margin-top:10px">
+<p onclick="recoverPassword()" style="cursor:pointer;color:#0d2340;margin-top:10px">
 📧 Recuperar palavra-passe
 </p>
-
 </div>
 
-<!-- APP (TUDO IGUAL AO TEU ORIGINAL) -->
+<!-- APP -->
 <div class="container app" id="app">
 
 <div class="grid">
 
+<!-- CLIENTE -->
 <div class="card">
 <h3>Adicionar Cliente</h3>
 
@@ -115,15 +123,16 @@ cursor:pointer;
 <input id="modelo" placeholder="Modelo">
 <input id="avaria" placeholder="Avaria">
 
-<button onclick="add()">Adicionar</button>
+<button onclick="addCliente()">Adicionar</button>
 </div>
 
+<!-- LISTA -->
 <div class="card">
-<h3>Lista de Clientes</h3>
+<h3>Clientes</h3>
 
 <select id="lista" size="10"></select>
 
-<button onclick="abrir()">Abrir Ficha</button>
+<button onclick="abrirFicha()">Abrir Ficha</button>
 <button onclick="printFicha()">Imprimir</button>
 
 <div style="margin-top:10px">
@@ -134,9 +143,9 @@ cursor:pointer;
 </div>
 
 </div>
-
 </div>
 
+<!-- FIREBASE LOGIN -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {
@@ -168,14 +177,12 @@ signInWithEmailAndPassword(auth,email,password)
 .then(()=>{
 document.getElementById("loginWrap").style.display="none";
 document.getElementById("app").style.display="block";
+loadClientes();
 })
-.catch(()=>{
-alert("Login errado");
-});
-
+.catch(()=>alert("Login errado"));
 };
 
-/* RECUPERAR PASSWORD REAL */
+/* RECOVER */
 window.recoverPassword = function(){
 
 const email = document.getElementById("email").value;
@@ -186,56 +193,72 @@ return;
 }
 
 sendPasswordResetEmail(auth,email)
-.then(()=>{
-alert("Email de recuperação enviado!");
-})
-.catch(()=>{
-alert("Erro ao enviar email");
-});
-
+.then(()=>alert("Email enviado"))
+.catch(()=>alert("Erro"));
 };
 
-/* ===== TEU SISTEMA ORIGINAL (NÃO MEXIDO) ===== */
+</script>
+
+<!-- SISTEMA LOCAL (CORRIGIDO E FUNCIONAL) -->
+<script>
 
 let clientes=[];
 
+/* SAVE */
 function save(){
 localStorage.setItem("clientes",JSON.stringify(clientes));
 }
 
-function load(){
+/* LOAD */
+function loadClientes(){
 clientes=JSON.parse(localStorage.getItem("clientes")||"[]");
 render();
 }
 
+/* RENDER */
 function render(){
 lista.innerHTML="";
 
 clientes.forEach((c,i)=>{
-let o=document.createElement("option");
-o.value=i;
-o.text=c.nome+" - "+c.telefone;
-lista.add(o);
+let opt=document.createElement("option");
+opt.value=i;
+opt.text=c.nome+" - "+c.telefone;
+lista.add(opt);
 });
 }
 
-function add(){
+/* ADD CLIENTE (CORRIGIDO) */
+function addCliente(){
 
 const c={
-nome:nome.value,
-telefone:telefone.value,
-imei:imei.value,
-marca:marca.value,
-modelo:modelo.value,
-avaria:avaria.value
+nome:document.getElementById("nome").value,
+telefone:document.getElementById("telefone").value,
+imei:document.getElementById("imei").value,
+marca:document.getElementById("marca").value,
+modelo:document.getElementById("modelo").value,
+avaria:document.getElementById("avaria").value
 };
+
+if(!c.nome){
+alert("Nome obrigatório");
+return;
+}
 
 clientes.push(c);
 save();
 render();
+
+/* limpar */
+document.getElementById("nome").value="";
+document.getElementById("telefone").value="";
+document.getElementById("imei").value="";
+document.getElementById("marca").value="";
+document.getElementById("modelo").value="";
+document.getElementById("avaria").value="";
 }
 
-function abrir(){
+/* FICHA */
+function abrirFicha(){
 
 const i=lista.value;
 if(i==="")return;
@@ -254,6 +277,7 @@ Status: ${st?st.value:"-"}`
 );
 }
 
+/* PRINT */
 function printFicha(){
 window.print();
 }
