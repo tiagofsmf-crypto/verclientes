@@ -123,6 +123,45 @@ visibility:visible !important;
 color:#000 !important;
 }
 }
+
+/* PAINEL ADMIN */
+.full{grid-column:1 / -1}
+
+.admin-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.muted{color:#666;font-size:13px}
+
+.table-wrap{overflow-x:auto;margin-top:10px}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+}
+
+th,td{
+border:1px solid #e6e6e6;
+padding:8px;
+text-align:left;
+white-space:nowrap;
+}
+
+th{background:#0d2340;color:#fff}
+
+tr:nth-child(even) td{background:#f7f9fc}
+
+.mini{
+padding:6px 10px;
+font-size:12px;
+width:auto;
+margin-right:5px;
+}
 </style>
 </head>
 
@@ -148,6 +187,10 @@ color:#000 !important;
 
 <!-- APP -->
 <div class="container app" id="app">
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:15px">
+<button onclick="toggleAdmin()" id="adminToggleBtn" style="width:auto">Abrir Painel Admin</button>
+</div>
 
 <div class="grid">
 
@@ -185,6 +228,34 @@ color:#000 !important;
 </div>
 
 </div>
+
+<!-- PAINEL ADMIN -->
+<div class="card full" id="adminPanel" style="display:none">
+
+<div class="admin-top">
+<h3>Painel Admin — Registos</h3>
+<span class="muted">Utilizador: <b id="adminUser">—</b></span>
+</div>
+
+<input id="adminSearch" placeholder="Pesquisar por nome, telefone, IMEI, marca, modelo..." oninput="renderAdmin()">
+
+<p class="muted">Total de registos: <b id="adminCount">0</b></p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>#</th><th>Nome</th><th>Telefone</th><th>IMEI</th><th>Marca</th><th>Modelo</th><th>Avaria</th><th>Ações</th>
+</tr>
+</thead>
+<tbody id="adminBody"></tbody>
+</table>
+</div>
+
+<p class="muted" id="adminEmpty" style="display:none">Sem registos.</p>
+
+</div>
+
 </div>
 
 <!-- FICHA -->
@@ -237,9 +308,10 @@ const email = document.getElementById("email").value;
 const password = document.getElementById("password").value;
 
 signInWithEmailAndPassword(auth,email,password)
-.then(()=>{
+.then((cred)=>{
 document.getElementById("loginWrap").style.display="none";
 document.getElementById("app").style.display="block";
+document.getElementById("adminUser").textContent = (cred.user && cred.user.email) ? cred.user.email : email;
 loadClientes();
 })
 .catch(()=>alert("Login errado"));
@@ -295,6 +367,70 @@ opt.value=i;
 opt.text=c.nome+" - "+c.telefone;
 lista.add(opt);
 });
+
+if(document.getElementById("adminPanel").style.display!=="none") renderAdmin();
+}
+
+/* ADMIN */
+function esc(s){
+s = (s==null) ? "" : String(s);
+return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+function toggleAdmin(){
+const panel=document.getElementById("adminPanel");
+const btn=document.getElementById("adminToggleBtn");
+const show = panel.style.display==="none";
+panel.style.display = show ? "block" : "none";
+btn.textContent = show ? "Fechar Painel Admin" : "Abrir Painel Admin";
+if(show){ renderAdmin(); panel.scrollIntoView({behavior:"smooth"}); }
+}
+
+function renderAdmin(){
+const body=document.getElementById("adminBody");
+const term=(document.getElementById("adminSearch").value||"").toLowerCase().trim();
+body.innerHTML="";
+
+let shown=0;
+
+clientes.forEach((c,i)=>{
+const hay=[c.nome,c.telefone,c.imei,c.marca,c.modelo,c.avaria].map(x=>(x||"").toString().toLowerCase()).join(" ");
+if(term && hay.indexOf(term)===-1) return;
+
+shown++;
+
+const tr=document.createElement("tr");
+tr.innerHTML =
+"<td>"+(i+1)+"</td>"+
+"<td>"+esc(c.nome)+"</td>"+
+"<td>"+esc(c.telefone)+"</td>"+
+"<td>"+esc(c.imei)+"</td>"+
+"<td>"+esc(c.marca)+"</td>"+
+"<td>"+esc(c.modelo)+"</td>"+
+"<td>"+esc(c.avaria)+"</td>";
+
+const td=document.createElement("td");
+
+const bFicha=document.createElement("button");
+bFicha.textContent="Ficha";
+bFicha.className="mini";
+bFicha.onclick=()=>abrirFichaIndex(i);
+
+const bDel=document.createElement("button");
+bDel.textContent="Eliminar";
+bDel.className="mini";
+bDel.style.background="#b30000";
+bDel.onclick=()=>deleteClienteIndex(i);
+
+td.appendChild(bFicha);
+td.appendChild(bDel);
+tr.appendChild(td);
+
+body.appendChild(tr);
+});
+
+document.getElementById("adminCount").textContent=shown;
+document.getElementById("adminEmpty").style.display = shown ? "none" : "block";
 }
 
 /* ADD */
@@ -335,7 +471,14 @@ alert("Seleciona um cliente");
 return;
 }
 
+abrirFichaIndex(i);
+}
+
+function abrirFichaIndex(i){
+
 const c=clientes[i];
+if(!c) return;
+
 const st=document.querySelector('input[name="status"]:checked');
 
 document.getElementById("pNome").textContent = c.nome || "—";
@@ -363,6 +506,13 @@ function deleteCliente(){
 
 const i=document.getElementById("lista").selectedIndex;
 if(i===-1)return;
+
+deleteClienteIndex(i);
+}
+
+function deleteClienteIndex(i){
+
+if(!clientes[i])return;
 
 if(!confirm("Eliminar cliente?"))return;
 
